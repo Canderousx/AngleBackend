@@ -39,20 +39,20 @@ public class Login {
     @Autowired
     AccountService accountService;
 
-    @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public ResponseEntity<SimpleResponse> signup(@RequestBody Account account) throws Exception {
-        boolean emailExists = accountService.emailExists(account.getEmail());
-        boolean usernameExists = accountService.usernameExists(account.getUsername());
-        if(emailExists){
-            throw new EmailExistsException();
-        }
-        if(usernameExists){
-            throw new UsernameExistsException();
-        }
-        account.setPassword(passwordEncoder.encode(account.getPassword()));
-        accountService.addUser(account);
-        return ResponseEntity.ok(new SimpleResponse("Account has been created!"));
-    }
+//    @RequestMapping(value = "/signup", method = RequestMethod.POST)
+//    public ResponseEntity<SimpleResponse> signup(@RequestBody Account account) throws Exception {
+//        boolean emailExists = accountService.emailExists(account.getEmail());
+//        boolean usernameExists = accountService.usernameExists(account.getUsername());
+//        if(emailExists){
+//            throw new EmailExistsException();
+//        }
+//        if(usernameExists){
+//            throw new UsernameExistsException();
+//        }
+//        account.setPassword(passwordEncoder.encode(account.getPassword()));
+//        accountService.addUser(account);
+//        return ResponseEntity.ok(new SimpleResponse("Account has been created!"));
+//    }
 
     @RequestMapping(value = "/login",method = RequestMethod.GET)
     public AuthRes login(@RequestBody AuthReq authReq,

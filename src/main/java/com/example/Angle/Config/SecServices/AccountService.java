@@ -72,6 +72,7 @@ public class AccountService {
     }
 
     public boolean emailExists(String email){
+
         return this.accountRepository.findByEmail(email).isPresent();
     }
 
