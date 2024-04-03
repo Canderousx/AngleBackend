@@ -1,5 +1,6 @@
 package com.example.Angle.Config.Filters;
 
+import com.example.Angle.Config.Exceptions.TokenExpiredException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Config.SecServices.MyUserDetailsService;
@@ -8,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     MyUserDetailsService userDetailsService;
 
+    @SneakyThrows
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authentication");
@@ -37,17 +40,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if(authHeader != null){
             if(authHeader.startsWith("Bearer ")){
                 token = authHeader.substring(7);
-                email = jwtService.getEmail(token);
+                logger.info("RECEIVED TOKEN: "+token);
+                email = jwtService.extractUsername(token);
+                logger.info("RECEIVED EMAIL: "+email);
             }
         }
         if(email !=null && SecurityContextHolder.getContext().getAuthentication() == null){
             Account account = userDetailsService.loadUserByUsername(email);
-            if(jwtService.isTokenValid(token,account)){
+            if(jwtService.validateToken(token,account)){
+                logger.info("Received token is valid!");
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         account,null,account.getAuthorities()
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            }else{
+                logger.info("Received token invalid!");
+                throw new TokenExpiredException();
+
             }
         }
         filterChain.doFilter(request,response);

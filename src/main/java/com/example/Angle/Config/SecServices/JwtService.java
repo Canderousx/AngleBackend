@@ -8,6 +8,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -19,68 +21,68 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "ACC0C21FACDFE09A10C33618B291BB599ECB1A3FEDC6B1BF55D9FC7B489A4C7C";
+    private final Logger logger = LogManager.getLogger(JwtService.class);
 
-    private Key getSignedKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-
-    public Boolean isTokenValid(String token, Account account){
-        String email = getEmail(token);
-        return (account.getEmail().equals(email) && !isTokenExpired(token));
-    }
-
-
-    private Boolean isTokenExpired(String token){
-        return getExpirationDate(token).before(new Date(System.currentTimeMillis()));
-    }
-
-
-    public String getEmail(String token){
-        return extractClaim(token,Claims::getSubject);
-    }
-
-
-    public Date getExpirationDate(String token){
-        return extractClaim(token,Claims::getExpiration);
-    }
-
-
+    public static final String SECRET = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
 
     private Claims extractAllClaims(String token){
         return Jwts
                 .parserBuilder()
-                .setSigningKey(getSignedKey())
+                .setSigningKey(SECRET)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
-
-    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver){
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    private Key getSignKey(){
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
 
-    public String generateToken(String email){
-        Map<String,Object> claims = new HashMap<>();
-        return createToken(claims,email);
-    }
-
-    private String createToken(Map<String,Object> claims, String email){
+    private String createToken(Map<String,Object> claims, String username){
         return Jwts.builder()
-                .setSubject(email)
                 .setClaims(claims)
+                .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
-                .signWith(getSignedKey(), SignatureAlgorithm.HS256)
+                .signWith(getSignKey())
                 .compact();
     }
 
+    public String generateToken(String username){
+        Map<String,Object> claims = new HashMap<>();
+        return createToken(claims,username);
+    }
 
+    public <T> T extractClaim(String token, Function<Claims,T>claimsResolver){
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+    public String extractUsername(String token){
+        return extractClaim(token,Claims::getSubject);
+    }
+
+    public Date extractExpiration(String token){
+        return extractClaim(token,Claims::getExpiration);
+    }
+
+    public Boolean isTokenExpired(String token){
+        boolean expired = extractExpiration(token).before(new Date(System.currentTimeMillis()));
+        if(expired){
+            logger.info("Received token is expired!");
+        }else{
+            logger.info("Received token time is valid");
+        }
+        return expired;
+    }
+    public Boolean validateToken(String token, Account userDetails){
+        final String username = extractUsername(token);
+        logger.info("USERNAME: "+username);
+        logger.info("UserDetailsName: "+userDetails.getEmail());
+        boolean valid = username.equals(userDetails.getEmail()) && !isTokenExpired(token);
+        return valid;
+    }
 
 
 

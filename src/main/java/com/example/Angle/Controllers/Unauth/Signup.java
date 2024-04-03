@@ -1,4 +1,4 @@
-package com.example.Angle.Controllers.Unauthenticated;
+package com.example.Angle.Controllers.Unauth;
 
 
 import com.example.Angle.Config.Exceptions.EmailExistsException;
@@ -6,7 +6,6 @@ import com.example.Angle.Config.Exceptions.UsernameExistsException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.AccountService;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;

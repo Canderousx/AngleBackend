@@ -26,6 +26,12 @@ public class ExceptionHandler {
         return ResponseEntity.badRequest().body(new SimpleResponse("Given username exists. Try different!"));
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = TokenExpiredException.class)
+    public ResponseEntity<SimpleResponse>TokenExpired(){
+        System.out.println("TokenExpiredException thrown!");
+        return ResponseEntity.status(666).body(new SimpleResponse("Used token is EXPIRED!"));
+    }
+
 
 
 }
