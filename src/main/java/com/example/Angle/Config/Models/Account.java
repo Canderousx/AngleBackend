@@ -43,6 +43,9 @@ public class Account implements UserDetails {
     @ElementCollection
     List<UUID> subscribers = new ArrayList<>();
 
+    @ElementCollection
+    List<UUID> subscribedIds = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

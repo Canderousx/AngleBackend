@@ -2,10 +2,12 @@ package com.example.Angle.Config.SecServices;
 
 
 import com.example.Angle.Config.Models.Account;
+import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -82,6 +84,23 @@ public class AccountService {
             return account.isActive();
         }
         return false;
+    }
+
+    public AccountRes generateAccountResponse(UUID accountId){
+        Account account = accountRepository.findById(accountId).orElse(null);
+        if(account == null){
+            throw new UsernameNotFoundException("Account doesn't exists!");
+        }
+        List<String> subscribedIds = new ArrayList<>();
+        account.getSubscribedIds().forEach(id -> subscribedIds.add(id.toString()));
+        return AccountRes
+                .builder()
+                .id(account.getId().toString())
+                .email(account.getEmail())
+                .username(account.getUsername())
+                .subscribers(account.getSubscribers().size())
+                .subscribedIds(subscribedIds)
+                .build();
     }
 
 
