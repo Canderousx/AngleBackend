@@ -2,8 +2,11 @@ package com.example.Angle.Config.Filters;
 
 import com.example.Angle.Config.Exceptions.TokenExpiredException;
 import com.example.Angle.Config.Models.Account;
+import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Config.SecServices.MyUserDetailsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,29 +40,38 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authentication");
         String email = null;
         String token = null;
-        if(authHeader != null){
-            if(authHeader.startsWith("Bearer ")){
-                token = authHeader.substring(7);
-                logger.info("RECEIVED TOKEN: "+token);
-                email = jwtService.extractUsername(token);
-                logger.info("RECEIVED EMAIL: "+email);
+        try{
+            if(authHeader != null){
+                if(authHeader.startsWith("Bearer ")){
+                    token = authHeader.substring(7);
+                    logger.info("RECEIVED TOKEN: "+token);
+                    email = jwtService.extractUsername(token);
+                    logger.info("RECEIVED EMAIL: "+email);
+                }
             }
-        }
-        if(email !=null && SecurityContextHolder.getContext().getAuthentication() == null){
-            Account account = userDetailsService.loadUserByUsername(email);
-            if(jwtService.validateToken(token,account)){
-                logger.info("Received token is valid!");
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        account,null,account.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }else{
-                logger.info("Received token invalid!");
-                throw new TokenExpiredException();
+            if(email !=null && SecurityContextHolder.getContext().getAuthentication() == null){
+                Account account = userDetailsService.loadUserByUsername(email);
+                if(jwtService.validateToken(token,account)){
+                    logger.info("Received token is valid!");
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            account,null,account.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }else{
+                    logger.info("Received token invalid!");
+                    throw new TokenExpiredException();
 
+                }
             }
+            filterChain.doFilter(request,response);
+
+        }catch (ExpiredJwtException e){
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            SimpleResponse simpleResponse = new SimpleResponse("Session timed out!");
+            String jsonResponse = new ObjectMapper().writeValueAsString(simpleResponse);
+            response.getWriter().write(jsonResponse);
         }
-        filterChain.doFilter(request,response);
+
     }
 }

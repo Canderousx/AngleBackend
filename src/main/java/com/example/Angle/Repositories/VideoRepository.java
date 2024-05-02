@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,12 +16,14 @@ public interface VideoRepository extends JpaRepository<Video, UUID> {
 
     Optional<Video>findByName(String name);
 
-    Optional<Video>findByDatePublished(String datePublished);
+    Optional<Video>findByDatePublished(Date datePublished);
 
     @Query(value = "SELECT * FROM Video v WHERE FIND_IN_SET(:tag, v.tags) > 0", nativeQuery = true)
     Optional<Video>findByTag(String tag);
 
     Optional<Video>findByAuthorId(UUID authorId);
+
+
 
 
 }

@@ -4,18 +4,24 @@ package com.example.Angle.Config.SecServices;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
+import com.example.Angle.Services.ImageService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class AccountService {
+
+    @Autowired
+    ImageService imageService;
 
     private final Logger log = LogManager.getLogger(AccountService.class);
 
@@ -86,7 +92,7 @@ public class AccountService {
         return false;
     }
 
-    public AccountRes generateAccountResponse(UUID accountId){
+    public AccountRes generateAccountResponse(UUID accountId) throws IOException, ClassNotFoundException {
         Account account = accountRepository.findById(accountId).orElse(null);
         if(account == null){
             throw new UsernameNotFoundException("Account doesn't exists!");
@@ -100,6 +106,7 @@ public class AccountService {
                 .username(account.getUsername())
                 .subscribers(account.getSubscribers().size())
                 .subscribedIds(subscribedIds)
+                .avatar(imageService.readImage(account.getAvatar()).getContent())
                 .build();
     }
 

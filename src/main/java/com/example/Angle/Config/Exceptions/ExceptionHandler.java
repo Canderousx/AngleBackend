@@ -2,6 +2,7 @@ package com.example.Angle.Config.Exceptions;
 
 
 import com.example.Angle.Config.Responses.SimpleResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,6 +31,12 @@ public class ExceptionHandler {
     public ResponseEntity<SimpleResponse>TokenExpired(){
         System.out.println("TokenExpiredException thrown!");
         return ResponseEntity.status(666).body(new SimpleResponse("Used token is EXPIRED!"));
+    }
+
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = MediaNotFoundException.class)
+    public ResponseEntity<SimpleResponse>MediaNotFound(){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleResponse("Requested media not found"));
     }
 
 

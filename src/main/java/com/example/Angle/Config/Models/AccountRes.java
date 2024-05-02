@@ -20,5 +20,7 @@ public class AccountRes {
 
     private List<String> subscribedIds;
 
+    private String avatar;
+
 
 }

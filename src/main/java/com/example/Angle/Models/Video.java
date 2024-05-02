@@ -5,9 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -21,26 +19,36 @@ public class Video {
     private String name;
 
     @Column(name = "datepublished")
-    private String datePublished;
+    private Date datePublished;
 
-    @ElementCollection
-    private List<String> tags = new ArrayList<>();
+    @ManyToMany(cascade =CascadeType.ALL)
+    @JoinTable(name ="video_tags",
+    joinColumns = @JoinColumn(name = "video_id",referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "tag_id",
+    referencedColumnName = "id"))
+    private Set<Tag> tags;
 
-    private int views;
+    private String description;
 
-    private int likes;
+    private int views = 0;
 
-    private int dislikes;
+    private int likes = 0;
+
+    private int dislikes = 0;
 
     @Column(name = "authorid")
     private UUID authorId;
 
-    private String video;
+    private String rawPath;
+
+    private String hlsPath;
 
     private String thumbnail;
 
+    private String authorAvatar;
+
     @Column(name = "isbanned")
-    private boolean isBanned;
+    private boolean isBanned = false;
 
 
 }

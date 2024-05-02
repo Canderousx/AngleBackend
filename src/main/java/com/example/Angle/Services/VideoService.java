@@ -21,15 +21,6 @@ public class VideoService {
     @Autowired
     private VideoRepository videoRepository;
 
-    public void addVideo(Video video){
-        if(video!=null){
-            this.videoRepository.save(video);
-            log.info("New video saved: "+video.getName());
-        }else{
-            log.error("Unable to save new video. It's NULL");
-        }
-
-    }
 
     public void removeVideo(UUID videoId){
         Optional<Video> toRemove = this.videoRepository.findById(videoId);
