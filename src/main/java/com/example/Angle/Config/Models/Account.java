@@ -4,6 +4,9 @@ package com.example.Angle.Config.Models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,8 +19,10 @@ import java.util.*;
 public class Account implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @UuidGenerator
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @Column(unique = true)
     private String username;
@@ -41,10 +46,16 @@ public class Account implements UserDetails {
     private Collection<? extends GrantedAuthority> authorities;
 
     @ElementCollection
-    List<UUID> subscribers = new ArrayList<>();
+    List<String> subscribers = new ArrayList<>();
 
     @ElementCollection
-    List<UUID> subscribedIds = new ArrayList<>();
+    List<String> subscribedIds = new ArrayList<>();
+
+    @ElementCollection
+    List<String>likedVideos = new ArrayList<>();
+
+    @ElementCollection
+    List<String>dislikedVideos = new ArrayList<>();
 
 
     @Override

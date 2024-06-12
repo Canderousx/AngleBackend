@@ -50,6 +50,11 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.11.5</version>
 		</dependency>
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.14</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -74,8 +79,16 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>media/**</exclude>
+					<exclude>thumbnails/**</exclude>
+				</excludes>
+			</resource>
+		</resources>
 	</build>
 
 </project>

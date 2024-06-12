@@ -1,83 +1,124 @@
 package com.example.Angle.Controllers.Unauth;
 
 
-import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.SecRepositories.AccountRepository;
+import com.example.Angle.Config.Exceptions.MediaNotFoundException;
+import com.example.Angle.Config.Models.AccountRes;
+import com.example.Angle.Config.Responses.SimpleResponse;
+import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Models.Comment;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
-import com.example.Angle.Repositories.VideoRepository;
+import com.example.Angle.Services.CommentService;
 import com.example.Angle.Services.ImageService;
+import com.example.Angle.Services.VideoService;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.coyote.BadRequestException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping(value = "/unAuth/videos")
-@CrossOrigin(value = {"http://localhost:4200"})
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 public class VideosController {
 
-    private final int pageSize = 10;
+    private final Logger logger = LogManager.getLogger(VideosController.class);
+
 
     @Autowired
-    VideoRepository videoRepository;
+    VideoService videoService;
 
     @Autowired
     ImageService imageService;
 
     @Autowired
-    AccountRepository accountRepository;
+    CommentService commentService;
+
+    @Autowired
+    AccountService accountService;
+
+
+    @RequestMapping(value = "/registerView",method = RequestMethod.PATCH)
+    public ResponseEntity<SimpleResponse>registerView(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
+            this.videoService.registerView(id);
+            return ResponseEntity.ok(new SimpleResponse("View registered!"));
+    }
+
+    @RequestMapping(value = "/getSimilar",method = RequestMethod.GET)
+    public List<Video>getSimilar(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
+        return this.videoService.getSimilar(id);
+    }
+
+
+
+
+    @RequestMapping(value = "/getBySubscribers")
+    public List<Video>getBySubscribers(@RequestParam String page) throws BadRequestException {
+        return videoService.getRandomBySubscribers(Integer.parseInt(page));
+    }
+
+
+
+
+
+    @RequestMapping(value = "/getComments",method = RequestMethod.GET)
+    public List<Comment>getComments(@RequestParam String id,
+                                    @RequestParam int page,
+                                    @RequestParam int pageSize,
+                                    HttpServletResponse httpResponse) throws IOException, ClassNotFoundException, MediaNotFoundException {
+        Pageable paginateSettings = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
+        httpResponse.setHeader("totalComments", commentService.getTotalCommentsNum(id));
+        return commentService.getVideoComments(id,paginateSettings);
+    }
+
 
     @RequestMapping(value = "/getAll",method = RequestMethod.GET)
     public List<Video> getAllVideos(@RequestParam int page) throws IOException, ClassNotFoundException {
-        Pageable paginateSettings = PageRequest.of(page,10, Sort.by("datePublished").descending());
-        List<Video> videos = this.videoRepository.findAll(paginateSettings).stream().toList();
-        for(Video video : videos){
-            try {
-                video.setThumbnail(imageService.readImage(video.getThumbnail()).getContent());
-                Optional<Account> account = accountRepository.findById(video.getAuthorId());
-                if (account.isPresent()) {
-                    video.setAuthorAvatar(imageService.readImage(account.get().getAvatar()).getContent());
-                }
-            }catch (NullPointerException e){
-                this.videoRepository.delete(video);
-            }
-        }
-        return videos;
+        return videoService.getAllVideos(page);
+    }
+
+    @RequestMapping(value = "/getUserById",method = RequestMethod.GET)
+    public AccountRes getUserById(@RequestParam String id) throws IOException, ClassNotFoundException {
+        return accountService.generateAccountResponse(id);
     }
 
     @RequestMapping(value = "/getVideo",method = RequestMethod.GET)
-    public Video getVideo(@RequestParam String id) throws IOException, ClassNotFoundException {
-        Optional<Video> video = videoRepository.findById(UUID.fromString(id));
-        return video.orElse(null);
+    public Video getVideo(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
+        return videoService.getVideo(id);
+    }
+
+    @RequestMapping(value = "/getMostPopular",method = RequestMethod.GET)
+    public List<Video> getPopular(){
+        return videoService.findMostPopular();
+    }
+
+    @RequestMapping(value = "/getUserVideos",method = RequestMethod.GET)
+    public List<Video> getUserVideos(@RequestParam String id,
+                                     @RequestParam int page,
+                                     @RequestParam int pageSize,
+                                     HttpServletResponse response) throws BadRequestException, MediaNotFoundException {
+        Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
+        int totalVideos = videoService.howManyUserVideos(id);
+        response.setHeader("totalVideos",String.valueOf(totalVideos));
+        return videoService.getUserVideos(id,pageable);
     }
 
     @RequestMapping(value = "/getAccount",method = RequestMethod.GET)
-    public Account getAccount(@RequestParam String id) throws IOException, ClassNotFoundException {
-        Optional<Account> account = accountRepository.findById(UUID.fromString(id));
-        if(account.isPresent()){
-            account.get().setAvatar(imageService.readImage(
-                    account.get().getAvatar()
-            ).getContent());
-            return account.get();
-        }
-        return null;
+    public AccountRes getAccount(@RequestParam String id) throws IOException, ClassNotFoundException {
+        return accountService.generateAccountResponse(id);
     }
 
     @RequestMapping(value = "/getUserAvatar", method = RequestMethod.GET)
     public Thumbnail getUserAvatar(@RequestParam String id) throws IOException, ClassNotFoundException {
-        Optional<Account>account = accountRepository.findById(UUID.fromString(id));
-        if(account.isEmpty()){
-            throw new UsernameNotFoundException("No such user in db!");
-        }
-        return imageService.readImage(account.get().getAvatar());
+        return new Thumbnail(accountService.generateAccountResponse(id).getAvatar());
     }
 
 

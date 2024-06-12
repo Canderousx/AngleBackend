@@ -13,15 +13,15 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
 
     private final Logger logger = LogManager.getLogger(JwtService.class);
+
+    private final Set<String>invalidatedTokens = new HashSet<>();
 
     public static final String SECRET = "357638792F423F4428472B4B6250655368566D597133743677397A2443264629";
 
@@ -50,14 +50,21 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateToken(String username){
+    public String generateToken(String username,String userIP){
         Map<String,Object> claims = new HashMap<>();
+        claims.put("IP",userIP);
         return createToken(claims,username);
     }
 
     public <T> T extractClaim(String token, Function<Claims,T>claimsResolver){
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    private String extractIP(String token){
+        return extractClaim(token, claims -> {
+            return (String) claims.get("IP");
+        });
     }
     public String extractUsername(String token){
         return extractClaim(token,Claims::getSubject);
@@ -76,13 +83,21 @@ public class JwtService {
         }
         return expired;
     }
-    public Boolean validateToken(String token, Account userDetails){
+    public Boolean validateToken(String token, Account userDetails,String userIP){
         final String username = extractUsername(token);
+        final String savedIP = extractIP(token);
         logger.info("USERNAME: "+username);
         logger.info("UserDetailsName: "+userDetails.getEmail());
-        boolean valid = username.equals(userDetails.getEmail()) && !isTokenExpired(token);
+        logger.info("Requested from: "+userIP);
+        boolean valid = username.equals(userDetails.getEmail()) && !isTokenExpired(token) && (savedIP.equals(userIP)) && !this.invalidatedTokens.contains(token);
         return valid;
     }
+
+    public void invalidateToken(String token){
+        this.invalidatedTokens.add(token);
+    }
+
+
 
 
 

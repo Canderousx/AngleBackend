@@ -116,8 +116,11 @@ public class FFMpegService {
 
        List<String> command = Arrays.asList(
                "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe", "-i", rawPath,
-               "-vf", "fps=1/10",
-               "-vframes", "5", "-f", "image2",
+               "-vf", "fps=1/2,scale=320:-1",
+               "-vframes", "5",
+               "-compression_level", "6", "-preset", "photo",
+//               "-vframes", "5", "-f", "image2",
+               "-f", "image2",
                thumbNailsPath
        );
 
