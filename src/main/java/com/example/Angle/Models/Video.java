@@ -28,6 +28,7 @@ public class Video {
     referencedColumnName = "id"))
     private Set<Tag> tags;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private int views = 0;

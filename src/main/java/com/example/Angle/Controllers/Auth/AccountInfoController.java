@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin(value = {"http://localhost:4200"})
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 @RequestMapping("/auth")
 public class AccountInfoController {
 
@@ -56,10 +56,7 @@ public class AccountInfoController {
         return response;
     }
 
-    @RequestMapping(value = "/getUserById",method = RequestMethod.GET)
-    public AccountRes getUserById(@RequestParam String id) throws IOException, ClassNotFoundException {
-        return accountService.generateAccountResponse(UUID.fromString(id));
-    }
+
 
     @RequestMapping(value = "/changeAvatar",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>changeAvatar(@RequestParam String id,

@@ -5,6 +5,7 @@ import com.example.Angle.Config.Models.AuthReq;
 import com.example.Angle.Config.Models.AuthRes;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping(value = "/unAuth")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 public class Login {
 
     private final Logger logger = LogManager.getLogger(Login.class);
@@ -39,7 +40,8 @@ public class Login {
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public AuthRes login(@RequestBody AuthReq authReq,
-                         HttpServletResponse response) throws IOException {
+                         HttpServletRequest request) throws IOException {
+        String userIP = request.getRemoteAddr();
         if(!accountService.emailExists(authReq.getEmail())){
             throw new BadCredentialsException("Incorrect username or password!");
         }
@@ -50,7 +52,7 @@ public class Login {
         if(authentication.isAuthenticated()){
             logger.info("Generating TOKEN");
             return AuthRes.builder()
-                    .authToken(jwtService.generateToken(authReq.getEmail()))
+                    .authToken(jwtService.generateToken(authReq.getEmail(),userIP))
                     .build();
         }else{
             throw new BadCredentialsException("Incorrect username or password!");

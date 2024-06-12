@@ -61,7 +61,7 @@ public class AccountService {
 
     public List<Account> getBannedUsers(){
         log.info("Sending Banned Users");
-        return new ArrayList<>(this.accountRepository.findByActive(false).stream().toList());
+        return new ArrayList<>(this.accountRepository.findByActive(false));
     }
 
     public List<Account>getAllUsers(){

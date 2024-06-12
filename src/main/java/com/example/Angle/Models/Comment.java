@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -23,8 +24,15 @@ public class Comment {
     private UUID videoId;
 
     @Column(name = "datepublished")
-    private String datePublished;
+    private Date datePublished;
 
+    @Transient
+    private String authorName;
+
+    @Transient
+    private String authorAvatar;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private int likes;

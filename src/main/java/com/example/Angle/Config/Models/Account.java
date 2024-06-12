@@ -46,6 +46,12 @@ public class Account implements UserDetails {
     @ElementCollection
     List<UUID> subscribedIds = new ArrayList<>();
 
+    @ElementCollection
+    List<UUID>likedVideos = new ArrayList<>();
+
+    @ElementCollection
+    List<UUID>dislikedVideos = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

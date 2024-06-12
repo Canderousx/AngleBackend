@@ -51,7 +51,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             if(email !=null && SecurityContextHolder.getContext().getAuthentication() == null){
                 Account account = userDetailsService.loadUserByUsername(email);
-                if(jwtService.validateToken(token,account)){
+                String userIP = request.getRemoteAddr();
+                if(jwtService.validateToken(token,account,userIP)){
                     logger.info("Received token is valid!");
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             account,null,account.getAuthorities()

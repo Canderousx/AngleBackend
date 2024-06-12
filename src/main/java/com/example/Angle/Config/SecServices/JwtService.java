@@ -50,14 +50,21 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateToken(String username){
+    public String generateToken(String username,String userIP){
         Map<String,Object> claims = new HashMap<>();
+        claims.put("IP",userIP);
         return createToken(claims,username);
     }
 
     public <T> T extractClaim(String token, Function<Claims,T>claimsResolver){
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    private String extractIP(String token){
+        return extractClaim(token, claims -> {
+            return (String) claims.get("IP");
+        });
     }
     public String extractUsername(String token){
         return extractClaim(token,Claims::getSubject);
@@ -76,11 +83,13 @@ public class JwtService {
         }
         return expired;
     }
-    public Boolean validateToken(String token, Account userDetails){
+    public Boolean validateToken(String token, Account userDetails,String userIP){
         final String username = extractUsername(token);
+        final String savedIP = extractIP(token);
         logger.info("USERNAME: "+username);
         logger.info("UserDetailsName: "+userDetails.getEmail());
-        boolean valid = username.equals(userDetails.getEmail()) && !isTokenExpired(token);
+        logger.info("Requested from: "+userIP);
+        boolean valid = username.equals(userDetails.getEmail()) && !isTokenExpired(token) && (savedIP.equals(userIP));
         return valid;
     }
 

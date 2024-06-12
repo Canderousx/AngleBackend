@@ -6,6 +6,8 @@ import com.example.Angle.Repositories.CommentRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -44,6 +46,20 @@ public class CommentService {
         }
     }
 
+    public boolean removeVideoComments(UUID videoId){
+        List<Comment>comments = commentRepository.findByVideoId(videoId).stream().toList();
+        if(comments.isEmpty()){
+            log.info("Requested video doesn't have any comments.");
+            return false;
+        }
+        comments.forEach(comment ->{
+            log.info("Deleting comment ID: "+comment.getId());
+            commentRepository.delete(comment);
+        });
+        return true;
+
+    }
+
     public List<Comment> getUserComments(UUID userId){
         Optional<Comment> userComments = this.commentRepository.findByAuthorId(userId);
         if(userComments.isPresent()){
@@ -55,11 +71,17 @@ public class CommentService {
         }
     }
 
-    public List<Comment> getVideoComments(UUID videoId){
-        Optional<Comment> videoComments = this.commentRepository.findByVideoId(videoId);
-        if(videoComments.isPresent()){
+    public String getTotalCommentsNum(UUID videoId){
+        String size = String.valueOf(commentRepository.findByVideoId(videoId).size());
+        log.info("Total comments: "+size);
+        return size;
+    }
+
+    public List<Comment> getVideoComments(UUID videoId, Pageable pageable){
+        Page<Comment> pageComments = this.commentRepository.findByVideoId(videoId,pageable);
+        if(!pageComments.isEmpty()){
             log.info("Video ["+videoId+"] comments found");
-            return new ArrayList<>(videoComments.stream().toList());
+            return new ArrayList<>(pageComments.stream().toList());
         }else{
             log.info("Video ["+videoId+"] doesn't have any comments yet");
             return new ArrayList<>();

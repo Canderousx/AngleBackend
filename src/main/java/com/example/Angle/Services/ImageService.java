@@ -41,6 +41,9 @@ public class ImageService {
         logger.info("Image serialized successfully!");
     }
     public Thumbnail readImage(String path) throws IOException, ClassNotFoundException {
+        if(path == null){
+            return new Thumbnail("");
+        }
         FileInputStream fis = new FileInputStream(path);
         ObjectInputStream is = new ObjectInputStream(fis);
         Thumbnail image = (Thumbnail) is.readObject();

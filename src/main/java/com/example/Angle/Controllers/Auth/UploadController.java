@@ -11,10 +11,12 @@ import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.*;
+import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/auth/upload")
-@CrossOrigin(value = {"http://localhost:4200"})
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 public class UploadController {
 
     @Autowired
@@ -69,8 +71,22 @@ public class UploadController {
     }
 
     @RequestMapping(value = "/getThumbnails",method = RequestMethod.GET)
-    public List<Thumbnail> getThumbnails(@RequestParam String v) throws IOException, InterruptedException {
+    public List<Thumbnail> getThumbnails(@RequestParam String v) throws IOException, InterruptedException, MediaNotFoundException {
         Video video = videoRepository.findById(UUID.fromString(v)).orElse(null);
+        Account account = accountRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElse(null);
+        if(account == null){
+            logger.error("You need to log in to edit video metadata!");
+            throw new BadCredentialsException("You need to log in!");
+        }
+        if(video == null){
+            logger.error("Media not found");
+            throw new MediaNotFoundException("Couldn't find requested media!");
+        }
+        if(!account.getId().equals(video.getAuthorId())){
+            logger.error("Unauthorized to edit media file ID: "+v);
+            throw new BadCredentialsException("Unauthorized");
+        }
         List<Thumbnail>generatedThumbs = ffMpegService.getVideoThumbnails(video.getRawPath());
         System.out.println("Received thumbnails: "+generatedThumbs.size());
         return generatedThumbs;

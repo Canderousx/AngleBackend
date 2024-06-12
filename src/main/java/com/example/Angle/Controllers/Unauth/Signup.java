@@ -20,7 +20,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/unAuth/signup")
-@CrossOrigin(value = {"http://localhost:4200"})
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 public class Signup {
 
     private final Logger logger = LogManager.getLogger(Signup.class);
