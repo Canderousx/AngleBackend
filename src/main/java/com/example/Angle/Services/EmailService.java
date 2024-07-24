@@ -18,7 +18,7 @@ public class EmailService {
 
     private final Logger logger = LogManager.getLogger(EmailService.class);
 
-    private final String restoreUrl = "http://192.168.100.36:4200/restorePassword?id=";
+    private final String frontUrl = System.getenv("ANGLE_IP");
 
     @Autowired
     private JavaMailSender mailSender;
@@ -33,9 +33,9 @@ public class EmailService {
         try {
             Account toRestore = accountService.getUserByEmail(email);
             String token = jwtService.generatePasswordRecoveryToken(toRestore.getUsername(),userIP);
+            String restoreUrl = "/restorePassword?id=";
             String message = "Dear "+toRestore.getUsername()+", \n\n\n\n\n" +
-                    "Here is the link to restore your password to your Angle account:\n" +
-                    restoreUrl+token+"\n" +
+                    "Here is the link to restore your password to your Angle account:\n" + frontUrl+ restoreUrl +token+"\n" +
                     "The link will expire in 15 minutes since your submission. Do not share it!";
             this.sendEmail(toRestore.getEmail(),"Angle: Password Restoration",message);
         } catch (MediaNotFoundException e) {
@@ -57,7 +57,7 @@ public class EmailService {
         String token = jwtService.generateEmailConfirmationToken(account.getUsername());
         String message = "Dear "+account.getUsername()+",\n" +
                 "Here is your confirmation link to activate your Angle account: \n\n\n\n\n" +
-                "http://192.168.100.36:4200/confirmAccount?id="+token;
+                frontUrl+"/confirmAccount?id="+token;
         sendEmail(account.getEmail(),"Angle: Account Creation Confirmation",message);
     }
 
