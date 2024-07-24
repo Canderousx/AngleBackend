@@ -1,11 +1,17 @@
 package com.example.Angle.Controllers.Unauth;
 
 
+import com.example.Angle.Config.Exceptions.MediaNotFoundException;
+import com.example.Angle.Config.Exceptions.TokenExpiredException;
+import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.AuthReq;
 import com.example.Angle.Config.Models.AuthRes;
+import com.example.Angle.Config.Models.PasswordRestoreRequest;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.JwtService;
+import com.example.Angle.Services.EmailService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
@@ -42,9 +48,38 @@ public class Login {
     @Autowired
     AccountService accountService;
 
+    @Autowired
+    EmailService emailService;
+
+
+    @RequestMapping(value = "/passwordRecovery",method = RequestMethod.POST)
+    public ResponseEntity<SimpleResponse>forgotPassword(@RequestBody String email,
+                                                        HttpServletRequest request){
+        emailService.restorePassword(email,request.getRemoteAddr());
+        return ResponseEntity.ok(new SimpleResponse("If account exists, you should receive a password reset instruction on your email"));
+    }
+
+    @RequestMapping(value = "/restorePassword",method = RequestMethod.POST)
+    public ResponseEntity<SimpleResponse>restorePassword(@RequestBody PasswordRestoreRequest passwordRequest,
+                                                         HttpServletRequest request) throws MediaNotFoundException, TokenExpiredException {
+        String token = passwordRequest.getToken();
+        try {
+            if (jwtService.validatePasswordRecoveryToken(token, request.getRemoteAddr())) {
+                String username = jwtService.extractUsername(token);
+                accountService.changeUserPassword(username, passwordRequest.getNewPassword());
+                emailService.passwordChangeMail(username);
+                jwtService.invalidateToken(token);
+                return ResponseEntity.ok(new SimpleResponse("Password has been changed! You can now sign in!"));
+            }
+        }catch (ExpiredJwtException e){
+            throw new TokenExpiredException("Access denied. Please try again.");
+        }
+        return null;
+    }
+
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     public AuthRes login(@RequestBody AuthReq authReq,
-                         HttpServletRequest request) throws IOException {
+                         HttpServletRequest request) throws IOException, MediaNotFoundException {
         String userIP = request.getRemoteAddr();
         if(!accountService.emailExists(authReq.getEmail())){
             throw new BadCredentialsException("Incorrect username or password!");
@@ -52,7 +87,14 @@ public class Login {
         if(!accountService.isActive(authReq.getEmail())){
             throw new BadRequestException("Account banned!");
         }
-
+        try {
+            accountService.checkEmailConfirmation(authReq.getEmail());
+        } catch (BadRequestException e) {
+            emailService.confirmationEmail(authReq.getEmail());
+            throw new BadRequestException(e.getMessage());
+        } catch (MediaNotFoundException e) {
+            throw new BadRequestException("Account doesn't exist");
+        }
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authReq.getEmail(),authReq.getPassword())
         );

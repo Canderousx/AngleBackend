@@ -9,6 +9,7 @@ import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Repositories.CommentRepository;
 import com.example.Angle.Repositories.VideoRepository;
+import com.example.Angle.Services.EmailService;
 import com.example.Angle.Services.ImageService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -36,10 +38,33 @@ public class AccountService {
     @Autowired
     CommentRepository commentRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+
     private final Logger log = LogManager.getLogger(AccountService.class);
 
     @Autowired
     private AccountRepository accountRepository;
+
+    public void changeUserPassword(String username, String newPassword) throws MediaNotFoundException {
+        Account toChange = this.getUserByUsername(username);
+        toChange.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(toChange);
+
+    }
+
+    public void checkEmailConfirmation(String email) throws MediaNotFoundException, BadRequestException {
+        Account account = getUserByEmail(email);
+        if(!account.isConfirmed()){
+            log.error("Email: "+email+" not confirmed!");
+            throw new BadRequestException("You need to confirm your email address. Check your mailbox!");
+        }
+    }
+
+    public boolean existsByEmail(String email){
+        return accountRepository.existsByEmail(email);
+    }
 
     public boolean isActive(String accountId){
         return accountRepository.isActive(accountId);
@@ -155,6 +180,22 @@ public class AccountService {
         Account account = this.accountRepository.findById(userId).orElse(null);
         if(account == null){
             log.error("Requested user id: "+userId+" not FOUND!");
+            throw new UsernameNotFoundException("User doesn't exists!");
+        }
+        return account;
+    }
+    public Account getUserByEmail(String email) throws MediaNotFoundException {
+        Account account = this.accountRepository.findByEmail(email).orElse(null);
+        if(account == null){
+            log.error("Requested user email: "+email+" not FOUND!");
+            throw new UsernameNotFoundException("User doesn't exists!");
+        }
+        return account;
+    }
+    public Account getUserByUsername(String username) throws MediaNotFoundException {
+        Account account = this.accountRepository.findByUsername(username).orElse(null);
+        if(account == null){
+            log.error("Requested user email: "+username+" not FOUND!");
             throw new UsernameNotFoundException("User doesn't exists!");
         }
         return account;

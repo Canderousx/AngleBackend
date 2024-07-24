@@ -3,6 +3,7 @@ package com.example.Angle.Config;
 
 import com.example.Angle.Config.Filters.JwtAuthFilter;
 import com.example.Angle.Config.Filters.RequestsLogger;
+import com.example.Angle.Config.SecServices.EnvironmentVariables;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Config.SecServices.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
@@ -13,9 +14,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +34,11 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig implements WebMvcConfigurer {
+
+    @Bean
+    EnvironmentVariables environmentVariables(){
+        return new EnvironmentVariables(System.getenv("JTOKEN_KEY"));
+    }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {

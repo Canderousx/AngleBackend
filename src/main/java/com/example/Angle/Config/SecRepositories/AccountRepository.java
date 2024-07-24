@@ -17,6 +17,8 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     Optional<Account>findByEmail(String email);
 
+    boolean existsByEmail(String email);
+
     List<Account> findByActive(boolean active);
 
     @Query(value = "SELECT * FROM Account a JOIN account_liked_videos alv ON a.id = alv.account_id WHERE alv.liked_videos = :videoId", nativeQuery = true)

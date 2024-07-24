@@ -39,6 +39,8 @@ public class Account implements UserDetails {
 
     private boolean active = true;
 
+    private boolean confirmed;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<UserRole> roles = new HashSet<>();
 
@@ -56,12 +58,6 @@ public class Account implements UserDetails {
 
     @ElementCollection
     List<String>dislikedVideos = new ArrayList<>();
-
-    @ElementCollection
-    List<UUID>likedVideos = new ArrayList<>();
-
-    @ElementCollection
-    List<UUID>dislikedVideos = new ArrayList<>();
 
 
     @Override
