@@ -18,7 +18,7 @@ public class EmailService {
 
     private final Logger logger = LogManager.getLogger(EmailService.class);
 
-    private final String restoreUrl = "http://localhost:4200/restorePassword?id=";
+    private final String restoreUrl = "http://192.168.100.36:4200/restorePassword?id=";
 
     @Autowired
     private JavaMailSender mailSender;
@@ -57,7 +57,7 @@ public class EmailService {
         String token = jwtService.generateEmailConfirmationToken(account.getUsername());
         String message = "Dear "+account.getUsername()+",\n" +
                 "Here is your confirmation link to activate your Angle account: \n\n\n\n\n" +
-                "http://localhost:4200/confirmAccount?id="+token;
+                "http://192.168.100.36:4200/confirmAccount?id="+token;
         sendEmail(account.getEmail(),"Angle: Account Creation Confirmation",message);
     }
 
