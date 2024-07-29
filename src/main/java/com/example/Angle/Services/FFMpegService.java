@@ -2,6 +2,7 @@ package com.example.Angle.Services;
 
 
 import com.example.Angle.Config.Exceptions.FileStoreException;
+import com.example.Angle.Config.SecServices.EnvironmentVariables;
 import com.example.Angle.Models.Thumbnail;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -21,18 +22,13 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class FFMpegService {
-
-    @Getter
-    private final String outputPath = "E:\\IT\\Angle\\BACKEND\\Angle\\src\\main\\resources\\media\\hls";
-
-    @Getter
-    private final String thumbNailsPath = "E:\\IT\\Angle\\BACKEND\\Angle\\src\\main\\resources\\media\\temp\\thumbnail%03d.png";
-
-    private final String tempFolder = "E:\\IT\\Angle\\BACKEND\\Angle\\src\\main\\resources\\media\\temp\\";
     private final Logger logger = LogManager.getLogger(FFMpegService.class);
 
     @Autowired
     ImageService imageService;
+
+    @Autowired
+    EnvironmentVariables environmentVariables;
 
     private static String inputStreamToString(InputStream inputStream) throws IOException {
         StringBuilder textBuilder = new StringBuilder();
@@ -48,7 +44,7 @@ public class FFMpegService {
 
     @Async
     public CompletableFuture<Void> convertToHls(String filePath, String videoId) throws FileStoreException {
-        File newFolder = new File(outputPath+"\\"+videoId);
+        File newFolder = new File(environmentVariables.getHlsOutputPath()+"\\"+videoId);
         if(newFolder.mkdir()){
             logger.info("New Folder ["+videoId+"] created!");
         };
@@ -56,14 +52,14 @@ public class FFMpegService {
             String playlistName = videoId+"_playlist.m3u8";
             try {
                 String command = String.format(
-                        "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe -i %s " +
+                        "%s -i %s " +
                                 "-map 0:v -map 0:a -b:v:0 5000k -c:v:0 libx264 -vf \"scale=-2:min(1080\\,ih)\" -b:a:0 192k " +
                                 "-map 0:v -map 0:a -b:v:1 2800k -c:v:1 libx264 -vf \"scale=-2:min(720\\,ih)\" -b:a:1 192k " +
                                 "-map 0:v -map 0:a -b:v:2 1400k -c:v:2 libx264 -vf \"scale=-2:min(480\\,ih)\" -b:a:2 128k " +
                                 "-var_stream_map \"v:0,a:0 v:1,a:1 v:2,a:2\" " +
                                 "-master_pl_name %s " +
                                 "-f hls -hls_time 10 -hls_list_size 0 -hls_segment_filename \"%s/segment_%%v_%%03d.ts\" %s/variant_%%v_%s.m3u8",
-                        filePath, playlistName, newFolder.getAbsolutePath(), newFolder.getAbsolutePath(), videoId);
+                        environmentVariables.getFfmpegPath(),filePath, playlistName, newFolder.getAbsolutePath(), newFolder.getAbsolutePath(), videoId);
                 ProcessBuilder builder = new ProcessBuilder(command.split(" "));
                 builder.redirectErrorStream(true); // Redirect error stream to output stream
                 Process process = builder.start();
@@ -109,19 +105,22 @@ public class FFMpegService {
 
        String processedPath = path.toString();
        System.out.println("PROCESSED PATH: "+processedPath);
-       int framesNumber = (int) Math.floor(videoLength / 10);
-       if(framesNumber > 5){
+       int framesNumber = (int) Math.floor(videoLength / 2);
+       if (framesNumber > 5) {
            framesNumber = 5;
+       } else if (framesNumber < 1) {
+           framesNumber = 1;
        }
+
+
 
        List<String> command = Arrays.asList(
                "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe", "-i", rawPath,
-               "-vf", "fps=1/2,scale=320:-1",
-               "-vframes", "5",
+               "-vf", "fps=" + (videoLength < 2 ? "1" : "1/2") + ",scale=320:-1",
+               "-vframes", String.valueOf(framesNumber),
                "-compression_level", "6", "-preset", "photo",
-//               "-vframes", "5", "-f", "image2",
                "-f", "image2",
-               thumbNailsPath
+               environmentVariables.getThumbnailsPath()
        );
 
 
@@ -141,7 +140,7 @@ public class FFMpegService {
        List<Thumbnail> thumbnails = new ArrayList<>();
 
        for(int i = 0; i < framesNumber; i++){
-           File file = new File(String.format(thumbNailsPath,i+1));
+           File file = new File(String.format(environmentVariables.getThumbnailsPath(),i+1));
            String base64img = imageService.imageToBase64(file);
            thumbnails.add(new Thumbnail(base64img));
            file.delete();

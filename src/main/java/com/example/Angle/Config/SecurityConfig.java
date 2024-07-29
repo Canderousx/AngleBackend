@@ -6,6 +6,8 @@ import com.example.Angle.Config.Filters.RequestsLogger;
 import com.example.Angle.Config.SecServices.EnvironmentVariables;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Config.SecServices.MyUserDetailsService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,9 +37,24 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 
+    private final Logger logger = LogManager.getLogger(SecurityConfig.class);
+
     @Bean
     EnvironmentVariables environmentVariables(){
-        return new EnvironmentVariables(System.getenv("JTOKEN_KEY"));
+        logger.info("Getting required System Environment Variables");
+        EnvironmentVariables env = EnvironmentVariables.builder()
+                .secretKey(System.getenv("JTOKEN_KEY"))
+                .ffmpegPath(System.getenv("FFMPEG_PATH"))
+                .hlsOutputPath(System.getenv("HLS_OUTPUT_PATH"))
+                .thumbnailsPath(System.getenv("Thumbnails_PATH"))
+                .ffmpegTempFolder(System.getenv("FFMPEG_TEMP_FOLDER"))
+                .build();
+        if(!env.checkIfNotNull()){
+            logger.error("ERROR: SOME OF YOUR SYSTEM VARIABLES DOESN'T EXIST. PLEASE CHECK IT OUT IMMEDIATELY");
+            return new EnvironmentVariables();
+        }
+        logger.info("System variables loaded successfully");
+        return env;
     }
 
     @Bean

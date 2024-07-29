@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @ControllerAdvice
 public class ExceptionHandler {
@@ -53,6 +54,11 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(value = FileServiceException.class)
     public ResponseEntity<SimpleResponse>filesException(FileServiceException e){
         return ResponseEntity.badRequest().body(new SimpleResponse(e.getMessage()));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = MaxUploadSizeExceededException.class)
+    public ResponseEntity<SimpleResponse>tooLargeFileException(Exception e){
+        return ResponseEntity.badRequest().body(new SimpleResponse("File too large!"));
     }
 
 

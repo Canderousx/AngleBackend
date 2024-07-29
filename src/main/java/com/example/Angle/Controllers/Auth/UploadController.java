@@ -6,6 +6,7 @@ import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
+import com.example.Angle.Config.SecServices.EnvironmentVariables;
 import com.example.Angle.Models.Tag;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
@@ -48,6 +49,9 @@ public class UploadController {
     @Autowired
     FFMpegService ffMpegService;
 
+    @Autowired
+    EnvironmentVariables environmentVariables;
+
     private final Logger logger = LogManager.getLogger(UploadController.class);
 
     @RequestMapping(value = "",method = RequestMethod.POST)
@@ -59,7 +63,7 @@ public class UploadController {
         video.setDatePublished(new Date());
         video.setAuthorId(account.getId());
         videoRepository.save(video);
-        video.setHlsPath(ffMpegService.getOutputPath()+"\\"+video.getId()+"\\"+video.getId()+"_playlist.m3u8");
+        video.setHlsPath(environmentVariables.getHlsOutputPath()+"\\"+video.getId()+"\\"+video.getId()+"_playlist.m3u8");
         videoRepository.save(video);
         try {
             CompletableFuture<Void> future = ffMpegService.convertToHls(video.getRawPath(), video.getId().toString());
