@@ -9,6 +9,7 @@ import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.TagRepository;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.Comments.CommentManagementServiceImpl;
+import com.example.Angle.Services.Images.ImageRetrievalService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +31,7 @@ public class VideoService {
     private VideoRepository videoRepository;
 
     @Autowired
-    private ImageService imageService;
+    private ImageRetrievalService imageRetrievalService;
 
     @Autowired
     private FileService fileService;
@@ -91,7 +92,7 @@ public class VideoService {
                 accountService.generateAccountResponse(video.getAuthorId()).getAvatar()
         );
         video.setThumbnail(
-                imageService.readImage(
+                imageRetrievalService.getImage(
                         video.getThumbnail()
                 ).getContent()
         );

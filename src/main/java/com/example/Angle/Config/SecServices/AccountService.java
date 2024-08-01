@@ -9,8 +9,7 @@ import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Repositories.CommentRepository;
 import com.example.Angle.Repositories.VideoRepository;
-import com.example.Angle.Services.EmailService;
-import com.example.Angle.Services.ImageService;
+import com.example.Angle.Services.Images.ImageRetrievalService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +29,7 @@ import java.util.List;
 public class AccountService {
 
     @Autowired
-    ImageService imageService;
+    ImageRetrievalService imageRetrievalService;
 
     @Autowired
     VideoRepository videoRepository;
@@ -214,19 +213,19 @@ public class AccountService {
 
 
 
-    public Account processAvatar(Account user) throws MediaNotFoundException {
-        try {
-            user.setAvatar(
-                    imageService.readImage(
-                            user.getAvatar()
-                    ).getContent()
-            );
-        } catch (IOException | ClassNotFoundException e) {
-            log.error("ERROR LOADING USER AVATAR ID: "+user.getId());
-            throw new MediaNotFoundException("Couldn't load user avatar!");
-        }
-        return user;
-    }
+//    public Account processAvatar(Account user) throws MediaNotFoundException {
+//        try {
+//            user.setAvatar(
+//                    imageService.readImage(
+//                            user.getAvatar()
+//                    ).getContent()
+//            );
+//        } catch (IOException | ClassNotFoundException e) {
+//            log.error("ERROR LOADING USER AVATAR ID: "+user.getId());
+//            throw new MediaNotFoundException("Couldn't load user avatar!");
+//        }
+//        return user;
+//    }
 
     public boolean usernameExists(String username){
         return this.accountRepository.findByUsername(username).isPresent();
@@ -237,14 +236,6 @@ public class AccountService {
         return this.accountRepository.findByEmail(email).isPresent();
     }
 
-//    public boolean isActive(String userId){
-//        Account account = this.accountRepository.findById(userId).orElse(null);
-//        if(account!=null){
-//            return account.isActive();
-//        }
-//        return false;
-//    }
-
     public AccountRes generateAccountResponse(String accountId) throws IOException, ClassNotFoundException {
         Account account = accountRepository.findById(accountId).orElse(null);
         if(account == null){
@@ -252,22 +243,22 @@ public class AccountService {
         };
         return AccountRes
                 .builder()
-                .id(account.getId().toString())
+                .id(account.getId())
                 .email(account.getEmail())
                 .username(account.getUsername())
                 .subscribers(account.getSubscribers().size())
-                .avatar(imageService.readImage(account.getAvatar()).getContent())
+                .avatar(imageRetrievalService.getImage(account.getAvatar()).getContent())
                 .build();
     }
 
     public AccountRes generateAccountResponse(Account account) throws IOException, ClassNotFoundException {
         return AccountRes
                 .builder()
-                .id(account.getId().toString())
+                .id(account.getId())
                 .email(account.getEmail())
                 .username(account.getUsername())
                 .subscribers(account.getSubscribers().size())
-                .avatar(imageService.readImage(account.getAvatar()).getContent())
+                .avatar(imageRetrievalService.getImage(account.getAvatar()).getContent())
                 .build();
     }
 

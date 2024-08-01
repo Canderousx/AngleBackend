@@ -14,7 +14,6 @@ import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportCategories;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Repositories.ReportRepository;
-import com.example.Angle.Services.ImageService;
 import com.example.Angle.Services.ReportService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;

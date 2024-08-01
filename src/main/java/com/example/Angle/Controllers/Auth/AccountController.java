@@ -4,44 +4,52 @@ package com.example.Angle.Controllers.Auth;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.AccountRes;
-import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.JwtService;
-import com.example.Angle.Models.Thumbnail;
-import com.example.Angle.Services.ImageService;
+import com.example.Angle.Services.Images.ImageConverterService;
+import com.example.Angle.Services.Images.ImageSaveService;
+import com.example.Angle.Services.Images.ImageUploadService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 
 
 @RestController
 @CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 @RequestMapping("/auth")
-public class AccountInfoController {
+public class AccountController {
 
+    private final JwtService jwtService;
+    private final AccountService accountService;
+    private final ImageUploadService imageUploadService;
+    private final ImageSaveService imageSaveService;
+
+    private final ImageConverterService imageConverterService;
+
+
+    private final Logger logger = LogManager.getLogger(AccountController.class);
 
     @Autowired
-    JwtService jwtService;
-
-    @Autowired
-    AccountService accountService;
-
-    @Autowired
-    ImageService imageService;
-
-    private final Logger logger = LogManager.getLogger(AccountInfoController.class);
+    public AccountController(JwtService jwtService,
+                             AccountService accountService,
+                             ImageUploadService imageUploadService,
+                             ImageSaveService imageSaveService,
+                             ImageConverterService imageConverterService){
+        this.jwtService = jwtService;
+        this.accountService = accountService;
+        this.imageUploadService = imageUploadService;
+        this.imageSaveService = imageSaveService;
+        this.imageConverterService = imageConverterService;
+    }
 
     @RequestMapping(value = "/isAdmin",method = RequestMethod.GET)
     public boolean isAdmin() throws BadRequestException {
@@ -101,11 +109,11 @@ public class AccountInfoController {
     @RequestMapping(value = "/changeAvatar",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>changeAvatar(@RequestParam String id,
                                                       @RequestParam(name = "file") MultipartFile avatar) throws IOException {
-        if(!imageService.checkExtension(avatar)){
+        if(!imageUploadService.checkExtension(avatar)){
             throw new InvalidFileNameException("","File extension not supported!");
         }
         Account account = accountService.getCurrentUser();
-        account.setAvatar(imageService.saveUserAvatar(imageService.processAvatar(avatar), id));
+        account.setAvatar(imageSaveService.saveUserAvatar(imageConverterService.convertAvatarToBase64(avatar), id));
         accountService.addUser(account);
         return ResponseEntity.ok(new SimpleResponse("Avatar has been changed successfully"));
     }

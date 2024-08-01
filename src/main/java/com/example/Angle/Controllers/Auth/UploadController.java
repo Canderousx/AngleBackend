@@ -4,6 +4,7 @@ package com.example.Angle.Controllers.Auth;
 import com.example.Angle.Config.Exceptions.FileStoreException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
+import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Config.SecServices.EnvironmentVariables;
@@ -12,6 +13,7 @@ import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.*;
+import com.example.Angle.Services.Images.ImageSaveService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,28 +33,38 @@ import java.util.concurrent.CompletableFuture;
 @CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 public class UploadController {
 
-    @Autowired
-    FileService fileService;
+    private final FileService fileService;
 
-    @Autowired
-    TagService tagService;
+    private final TagService tagService;
 
-    @Autowired
-    ImageService imageService;
+    private final VideoRepository videoRepository;
 
-    @Autowired
-    VideoRepository videoRepository;
+    private final AccountRepository accountRepository;
 
-    @Autowired
-    AccountRepository accountRepository;
+    private final FFMpegService ffMpegService;
 
-    @Autowired
-    FFMpegService ffMpegService;
+    private final EnvironmentVariables environmentVariables;
 
-    @Autowired
-    EnvironmentVariables environmentVariables;
+    private final ImageSaveService imageSaveService;
 
     private final Logger logger = LogManager.getLogger(UploadController.class);
+
+    @Autowired
+    public UploadController(FileService fileService,
+                            TagService tagService,
+                            VideoRepository videoRepository,
+                            AccountRepository accountRepository,
+                            FFMpegService ffMpegService,
+                            EnvironmentVariables environmentVariables,
+                            ImageSaveService imageSaveService){
+        this.fileService = fileService;
+        this.tagService = tagService;
+        this.videoRepository = videoRepository;
+        this.accountRepository = accountRepository;
+        this.ffMpegService = ffMpegService;
+        this.environmentVariables = environmentVariables;
+        this.imageSaveService = imageSaveService;
+    }
 
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse> uploadVideo(@RequestParam("file")MultipartFile file) throws FileStoreException {
@@ -99,17 +111,16 @@ public class UploadController {
     @RequestMapping(value = "/setMetadata",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>setMetadata(@RequestParam String id,
                                                      @RequestBody Video metadata) throws MediaNotFoundException {
-        String videoId = id;
-        Video video = videoRepository.findById(videoId).orElse(null);
+        Video video = videoRepository.findById(id).orElse(null);
         if(video != null){
             video.setName(metadata.getName());
             video.setDescription(metadata.getDescription());
             Set<Tag> tags = new HashSet<>(metadata.getTags());
             video.setTags(tagService.setTags(metadata));
             try {
-                video.setThumbnail(imageService.saveVideoThumbnail(
+                video.setThumbnail(imageSaveService.saveVideoThumbnail(
                         metadata.getThumbnail(),
-                        video.getId().toString()
+                        video.getId()
                 ));
                 videoRepository.save(video);
                 return ResponseEntity.ok(new SimpleResponse("Your video has been saved!"));

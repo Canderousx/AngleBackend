@@ -4,6 +4,7 @@ package com.example.Angle.Services;
 import com.example.Angle.Config.Exceptions.FileStoreException;
 import com.example.Angle.Config.SecServices.EnvironmentVariables;
 import com.example.Angle.Models.Thumbnail;
+import com.example.Angle.Services.Images.ImageConverterService;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +26,7 @@ public class FFMpegService {
     private final Logger logger = LogManager.getLogger(FFMpegService.class);
 
     @Autowired
-    ImageService imageService;
+    ImageConverterService imageConverterService;
 
     @Autowired
     EnvironmentVariables environmentVariables;
@@ -141,7 +142,7 @@ public class FFMpegService {
 
        for(int i = 0; i < framesNumber; i++){
            File file = new File(String.format(environmentVariables.getThumbnailsPath(),i+1));
-           String base64img = imageService.imageToBase64(file);
+           String base64img = imageConverterService.convertToBase64(file);
            thumbnails.add(new Thumbnail(base64img));
            file.delete();
        }

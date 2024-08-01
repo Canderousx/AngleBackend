@@ -9,7 +9,6 @@ import com.example.Angle.Models.Comment;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Services.Comments.CommentRetrievalServiceImpl;
-import com.example.Angle.Services.ImageService;
 import com.example.Angle.Services.VideoService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
@@ -35,9 +34,6 @@ public class VideosController {
 
     @Autowired
     VideoService videoService;
-
-    @Autowired
-    ImageService imageService;
 
     @Autowired
     CommentRetrievalServiceImpl commentRetrievalServiceImpl;

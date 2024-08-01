@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.lang.reflect.Field;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,16 +20,29 @@ public class EnvironmentVariables {
 
     private String hlsOutputPath;
 
-    private String thumbnailsPath;
+    private String ffmpegTempThumbnailsPath;
 
     private String ffmpegTempFolder;
 
+    private String avatarsPath;
+
+    private String thumbnailsPath;
+
+
+
+
     public boolean checkIfNotNull(){
-        return  secretKey != null &&
-                ffmpegPath != null &&
-                hlsOutputPath != null &&
-                thumbnailsPath != null &&
-                ffmpegTempFolder !=null;
+        for(Field field : this.getClass().getDeclaredFields()){
+            field.setAccessible(true);
+            try {
+                if(field.get(this) == null){
+                    return false;
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Error checking null for field "+field.getName(),e);
+            }
+        }
+        return true;
     }
 
 }

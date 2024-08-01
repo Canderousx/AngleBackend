@@ -46,12 +46,14 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .secretKey(System.getenv("JTOKEN_KEY"))
                 .ffmpegPath(System.getenv("FFMPEG_PATH"))
                 .hlsOutputPath(System.getenv("HLS_OUTPUT_PATH"))
-                .thumbnailsPath(System.getenv("Thumbnails_PATH"))
+                .ffmpegTempThumbnailsPath(System.getenv("FFMPEG_TEMP_THUMBNAILS_PATH"))
                 .ffmpegTempFolder(System.getenv("FFMPEG_TEMP_FOLDER"))
+                .avatarsPath(System.getenv("ANGLE_AVATARS_PATH"))
+                .thumbnailsPath(System.getenv("ANGLE_THUMBNAILS_PATH"))
                 .build();
         if(!env.checkIfNotNull()){
-            logger.error("ERROR: SOME OF YOUR SYSTEM VARIABLES DOESN'T EXIST. PLEASE CHECK IT OUT IMMEDIATELY");
-            return new EnvironmentVariables();
+            logger.error("ERROR: SOME OF YOUR SYSTEM VARIABLES DON'T EXIST. PLEASE CHECK IT OUT IMMEDIATELY");
+            throw new RuntimeException();
         }
         logger.info("System variables loaded successfully");
         return env;

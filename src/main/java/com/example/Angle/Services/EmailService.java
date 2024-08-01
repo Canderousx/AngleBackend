@@ -20,14 +20,23 @@ public class EmailService {
 
     private final String frontUrl = System.getenv("ANGLE_IP");
 
-    @Autowired
-    private JavaMailSender mailSender;
 
-    @Autowired
-    private JwtService jwtService;
+    private final JavaMailSender mailSender;
 
-    @Autowired
-    private AccountService accountService;
+
+    private final JwtService jwtService;
+
+
+    private final AccountService accountService;
+
+
+    public EmailService(JavaMailSender javaMailSender,
+                        JwtService jwtService,
+                        AccountService accountService){
+        this.mailSender = javaMailSender;
+        this.jwtService = jwtService;
+        this.accountService = accountService;
+    }
 
     public void restorePassword(String email, String userIP) {
         try {

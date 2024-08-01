@@ -6,7 +6,7 @@ import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.Comment;
 import com.example.Angle.Repositories.CommentRepository;
 import com.example.Angle.Services.Comments.Interfaces.CommentRetrieval;
-import com.example.Angle.Services.ImageService;
+import com.example.Angle.Services.Images.ImageRetrievalService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,17 +25,17 @@ public class CommentRetrievalServiceImpl implements CommentRetrieval {
 
     private final CommentRepository commentRepository;
 
-    private final ImageService imageService;
-
     private final AccountService accountService;
+
+    private final ImageRetrievalService imageRetrievalService;
 
     private final Logger log = LogManager.getLogger(CommentManagementServiceImpl.class);
 
 
     @Autowired
-    public CommentRetrievalServiceImpl(CommentRepository commentRepository, ImageService imageService, AccountService accountService){
+    public CommentRetrievalServiceImpl(CommentRepository commentRepository, ImageRetrievalService imageRetrievalService, AccountService accountService){
         this.commentRepository = commentRepository;
-        this.imageService = imageService;
+        this.imageRetrievalService = imageRetrievalService;
         this.accountService = accountService;
     }
     @Override
@@ -91,7 +91,7 @@ public class CommentRetrievalServiceImpl implements CommentRetrieval {
     private Comment fillCommentData(Comment comment) throws IOException, ClassNotFoundException, MediaNotFoundException {
         Account account = accountService.getUser(comment.getAuthorId());
         if(account!=null){
-            comment.setAuthorAvatar(imageService.readImage(account.getAvatar()).getContent());
+            comment.setAuthorAvatar(imageRetrievalService.getImage(account.getAvatar()).getContent());
             comment.setAuthorName(account.getUsername());
         }else{
             comment.setAuthorName("Account disabled");
