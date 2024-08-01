@@ -13,6 +13,7 @@ import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.*;
+import com.example.Angle.Services.Files.FileSaveService;
 import com.example.Angle.Services.Images.ImageSaveService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 @CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 public class UploadController {
 
-    private final FileService fileService;
+    private final FileSaveService fileSaveService;
 
     private final TagService tagService;
 
@@ -50,14 +51,14 @@ public class UploadController {
     private final Logger logger = LogManager.getLogger(UploadController.class);
 
     @Autowired
-    public UploadController(FileService fileService,
+    public UploadController(FileSaveService fileSaveService,
                             TagService tagService,
                             VideoRepository videoRepository,
                             AccountRepository accountRepository,
                             FFMpegService ffMpegService,
                             EnvironmentVariables environmentVariables,
                             ImageSaveService imageSaveService){
-        this.fileService = fileService;
+        this.fileSaveService = fileSaveService;
         this.tagService = tagService;
         this.videoRepository = videoRepository;
         this.accountRepository = accountRepository;
@@ -71,7 +72,7 @@ public class UploadController {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Account account = accountRepository.findByUsername(username).orElse(null);
         Video video = new Video();
-        video.setRawPath(this.fileService.storeFile(file));
+        video.setRawPath(this.fileSaveService.saveRawFile(file));
         video.setDatePublished(new Date());
         video.setAuthorId(account.getId());
         videoRepository.save(video);

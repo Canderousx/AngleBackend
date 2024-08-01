@@ -77,7 +77,7 @@ public class FFMpegService {
                     logger.info("Conversion to HLS for videoId " + videoId + " completed successfully.");
                 } else {
                     logger.error("FFmpeg conversion process for videoId " + videoId + " exited with error code: " + exitCode);
-                    throw new FileStoreException();
+                    throw new FileStoreException("An error occurred during the conversion process for videoId " + videoId);
                 }
             } catch (Exception e) {
                 logger.error("An error occurred during the conversion process for videoId " + videoId, e);
@@ -121,7 +121,7 @@ public class FFMpegService {
                "-vframes", String.valueOf(framesNumber),
                "-compression_level", "6", "-preset", "photo",
                "-f", "image2",
-               environmentVariables.getThumbnailsPath()
+               environmentVariables.getFfmpegTempThumbnailsPath()
        );
 
 
@@ -141,7 +141,7 @@ public class FFMpegService {
        List<Thumbnail> thumbnails = new ArrayList<>();
 
        for(int i = 0; i < framesNumber; i++){
-           File file = new File(String.format(environmentVariables.getThumbnailsPath(),i+1));
+           File file = new File(String.format(environmentVariables.getFfmpegTempThumbnailsPath(),i+1));
            String base64img = imageConverterService.convertToBase64(file);
            thumbnails.add(new Thumbnail(base64img));
            file.delete();

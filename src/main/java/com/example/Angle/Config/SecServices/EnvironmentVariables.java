@@ -28,7 +28,9 @@ public class EnvironmentVariables {
 
     private String thumbnailsPath;
 
+    private String rawFilesPath;
 
+    private String hlsFilesPath;
 
 
     public boolean checkIfNotNull(){

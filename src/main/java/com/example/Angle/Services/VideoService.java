@@ -9,6 +9,7 @@ import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.TagRepository;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.Comments.CommentManagementServiceImpl;
+import com.example.Angle.Services.Files.FileDeleterService;
 import com.example.Angle.Services.Images.ImageRetrievalService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +35,7 @@ public class VideoService {
     private ImageRetrievalService imageRetrievalService;
 
     @Autowired
-    private FileService fileService;
+    private FileDeleterService fileDeleterService;
 
     @Autowired
     private CommentManagementServiceImpl commentManagementServiceImpl;
@@ -57,9 +58,9 @@ public class VideoService {
     }
 
 
-    public void removeVideo(String id) throws MediaNotFoundException, IOException, ClassNotFoundException, FileServiceException {
+    public void removeVideo(String id) throws MediaNotFoundException, FileServiceException{
         Video video = getRawVideo(id);
-        fileService.deleteVideoFiles(video);
+        fileDeleterService.deleteVideoFiles(video);
         log.info("Files removed successfully! Removing database entries");
         commentManagementServiceImpl.removeVideoComments(video.getId());
         accountService.removeLikeInteractions(video.getId());
