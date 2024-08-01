@@ -7,7 +7,6 @@ import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.UserRolesService;
-import com.example.Angle.Services.ReportService;
 import com.example.Angle.Services.VideoService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -36,10 +35,6 @@ public class DataController {
     @Autowired
     private AccountService accountService;
 
-
-
-    @Autowired
-    private ReportService reportService;
 
     private final Logger logger = LogManager.getLogger(DataController.class);
 

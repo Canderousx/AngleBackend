@@ -14,7 +14,9 @@ import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportCategories;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Repositories.ReportRepository;
-import com.example.Angle.Services.ReportService;
+import com.example.Angle.Services.Reports.ReportModerationService;
+import com.example.Angle.Services.Reports.ReportRetrievalService;
+import com.example.Angle.Services.Reports.ReportSaveService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -51,7 +53,13 @@ public class ReportsController {
     private final Logger logger = LogManager.getLogger(ReportsController.class);
 
     @Autowired
-    private ReportService reportService;
+    private ReportRetrievalService reportRetrievalService;
+
+    @Autowired
+    private ReportSaveService reportSaveService;
+
+    @Autowired
+    private ReportModerationService reportModerationService;
 
     @RequestMapping(value = "/getCategories",method = RequestMethod.GET)
     public List<String>getReportCategories(){
@@ -74,14 +82,14 @@ public class ReportsController {
         }catch (IllegalArgumentException e){
             throw new BadRequestException("Invalid report type!");
         }
-        reportService.addReport(reportValues,reportType);
+        reportSaveService.saveReport(reportValues,reportType);
         return ResponseEntity.ok(new SimpleResponse("Report has been sent. Thank you!"));
     }
 
     @RequestMapping(value = "/howManyUnresolved",method = RequestMethod.GET)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public int howManyUnresolved(){
-        return reportService.howManyUnresolved();
+        return reportModerationService.howManyUnresolved();
     }
 
     @RequestMapping(value = "/getUnresolved",method = RequestMethod.GET)
@@ -136,7 +144,7 @@ public class ReportsController {
     @RequestMapping(value = "/getUsersInvolved",method = RequestMethod.GET)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<AccountRes>getUsersInvolved(@RequestParam String id) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        Report report = reportService.getReport(id);
+        Report report = reportRetrievalService.getReport(id);
         Account reporter = accountService.getUser(report.getReporterId());
         Account reported = accountService.getMediaAuthor(report.getType(),report.getMediaId());
         List<AccountRes>involved = new ArrayList<>();

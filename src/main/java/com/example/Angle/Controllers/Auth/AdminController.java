@@ -6,7 +6,7 @@ import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.ReportSolutions;
 import com.example.Angle.Services.Comments.CommentModerationServiceImpl;
-import com.example.Angle.Services.ReportService;
+import com.example.Angle.Services.Reports.ReportModerationService;
 import com.example.Angle.Services.VideoService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +24,18 @@ public class AdminController {
 
     private final AccountService accountService;
 
-    private final ReportService reportService;
+    private final ReportModerationService reportModerationService;
 
     private final CommentModerationServiceImpl commentModerationService;
 
     @Autowired
     public AdminController(VideoService videoService,
                            AccountService accountService,
-                           ReportService reportService,
+                           ReportModerationService reportModerationService,
                            CommentModerationServiceImpl commentModerationServiceImpl){
         this.videoService = videoService;
         this.accountService = accountService;
-        this.reportService = reportService;
+        this.reportModerationService = reportModerationService;
         this.commentModerationService = commentModerationServiceImpl;
     }
 
@@ -44,7 +44,7 @@ public class AdminController {
                                                      @RequestParam String accountId,
                                                      @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
         this.accountService.banAccount(accountId);
-        this.reportService.solveReport(ReportSolutions.ACCOUNT_BANNED,reason,reportId);
+        this.reportModerationService.solveReport(ReportSolutions.ACCOUNT_BANNED,reason,reportId);
         return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
     }
 
@@ -53,7 +53,7 @@ public class AdminController {
                                                    @RequestParam String videoId,
                                                    @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
         this.videoService.banVideo(videoId);
-        this.reportService.solveReport(ReportSolutions.MEDIA_BANNED,reason,reportId);
+        this.reportModerationService.solveReport(ReportSolutions.MEDIA_BANNED,reason,reportId);
         return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
     }
     @RequestMapping(value = "/banComment",method = RequestMethod.POST)
@@ -61,13 +61,13 @@ public class AdminController {
                                                      @RequestParam String commentId,
                                                      @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
         this.commentModerationService.banComment(commentId);
-        this.reportService.solveReport(ReportSolutions.MEDIA_BANNED,reason,reportId);
+        this.reportModerationService.solveReport(ReportSolutions.MEDIA_BANNED,reason,reportId);
         return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
     }
     @RequestMapping(value = "/cancelReport",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse> cancelReport(@RequestBody String reason,
                                                        @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
-        this.reportService.solveReport(ReportSolutions.CANCELED,reason,reportId);
+        this.reportModerationService.solveReport(ReportSolutions.CANCELED,reason,reportId);
         return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
     }
 
