@@ -8,6 +8,7 @@ import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.TagRepository;
 import com.example.Angle.Repositories.VideoRepository;
+import com.example.Angle.Services.Comments.CommentManagementServiceImpl;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +36,7 @@ public class VideoService {
     private FileService fileService;
 
     @Autowired
-    private CommentService commentService;
+    private CommentManagementServiceImpl commentManagementServiceImpl;
 
     @Autowired
     private TagRepository tagRepository;
@@ -59,7 +60,7 @@ public class VideoService {
         Video video = getRawVideo(id);
         fileService.deleteVideoFiles(video);
         log.info("Files removed successfully! Removing database entries");
-        commentService.removeVideoComments(video.getId());
+        commentManagementServiceImpl.removeVideoComments(video.getId());
         accountService.removeLikeInteractions(video.getId());
         accountService.removeDislikeInteractions(video.getId());
         videoRepository.deleteTagAssociations(video.getId());

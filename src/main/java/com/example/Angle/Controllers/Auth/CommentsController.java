@@ -1,17 +1,11 @@
 package com.example.Angle.Controllers.Auth;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
-import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecRepositories.AccountRepository;
-import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.Comment;
-import com.example.Angle.Models.ReportCategories;
-import com.example.Angle.Repositories.CommentRepository;
-import com.example.Angle.Services.CommentService;
-import com.example.Angle.Services.ImageService;
+import com.example.Angle.Services.Comments.CommentManagementServiceImpl;
+import com.example.Angle.Services.Comments.CommentRetrievalServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +25,20 @@ public class CommentsController {
 
     private final Logger logger = LogManager.getLogger(CommentsController.class);
 
+    private final CommentRetrievalServiceImpl commentRetrievalService;
+
+    private final CommentManagementServiceImpl commentManagementService;
+
     @Autowired
-    CommentService commentService;
+    public CommentsController(CommentRetrievalServiceImpl commentRetrievalServiceImpl,
+                              CommentManagementServiceImpl commentManagementServiceImpl){
+        this.commentRetrievalService = commentRetrievalServiceImpl;
+        this.commentManagementService = commentManagementServiceImpl;
+    }
 
     @RequestMapping(value = "/getComment",method = RequestMethod.GET)
     public Comment getComment(@RequestParam String id) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        return commentService.getComment(id);
+        return commentRetrievalService.getComment(id);
     }
 
 
@@ -44,16 +46,16 @@ public class CommentsController {
     public List<Comment> addComment(@RequestBody Comment comment,
                                     HttpServletResponse response) throws IOException, ClassNotFoundException, MediaNotFoundException {
         comment.setDatePublished(new Date());
-        commentService.addComment(comment);
+        commentManagementService.addComment(comment);
         Pageable paginateSettings = PageRequest.of(0,10, Sort.by("datePublished").descending());
-        List<Comment> refreshed = commentService.getVideoComments(comment.getVideoId(),paginateSettings);
+        List<Comment> refreshed = commentRetrievalService.getVideoComments(comment.getVideoId(),paginateSettings);
         response.setHeader("totalComments",String.valueOf(refreshed.size()));
         return refreshed;
     }
 
     @RequestMapping(value = "/delete",method = RequestMethod.DELETE)
     public ResponseEntity<SimpleResponse>deleteComment(@RequestParam String id) throws IOException, MediaNotFoundException, ClassNotFoundException {
-        commentService.removeComment(id);
+        commentManagementService.removeComment(id);
         return ResponseEntity.ok(new SimpleResponse("The comment has been deleted."));
     }
 }

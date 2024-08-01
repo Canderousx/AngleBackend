@@ -134,9 +134,6 @@ public class ReportsController {
         logger.info("USER CASES COUNT: "+myCases.size());
         return myCases;
     }
-
-
-
     @RequestMapping(value = "/getUsersInvolved",method = RequestMethod.GET)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<AccountRes>getUsersInvolved(@RequestParam String id) throws IOException, ClassNotFoundException, MediaNotFoundException {

@@ -25,6 +25,14 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
 
     List<Comment>findByVideoId(String videoId);
 
+    @Query(value = "SELECT count(*) FROM comment c WHERE c.videoid = :videoId",nativeQuery = true)
+    int countAllVideoComments(@RequestParam("videoId")String videoId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM comment WHERE videoid = :videoId",nativeQuery = true)
+    void deleteVideoComments(@RequestParam("videoId")String videoId);
+
     @Modifying
     @Transactional
     @Query(value = "UPDATE comment SET isbanned = true WHERE authorid = :accountId",nativeQuery = true)

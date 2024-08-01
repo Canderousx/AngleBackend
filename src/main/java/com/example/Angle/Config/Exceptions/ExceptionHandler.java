@@ -49,7 +49,7 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler(value = MediaNotFoundException.class)
     public ResponseEntity<SimpleResponse>MediaNotFound(MediaNotFoundException e){
-        return ResponseEntity.badRequest().body(new SimpleResponse(e.getMessage()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new SimpleResponse(e.getMessage()));
     }
     @org.springframework.web.bind.annotation.ExceptionHandler(value = FileServiceException.class)
     public ResponseEntity<SimpleResponse>filesException(FileServiceException e){

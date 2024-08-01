@@ -10,6 +10,7 @@ import com.example.Angle.Models.ReportCategories;
 import com.example.Angle.Models.ReportSolutions;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Repositories.ReportRepository;
+import com.example.Angle.Services.Comments.CommentModerationServiceImpl;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,7 +37,7 @@ public class ReportService {
     private VideoService videoService;
 
     @Autowired
-    private CommentService commentService;
+    private CommentModerationServiceImpl commentModerationServiceImpl;
 
 
     public Report getReport(String reportId) throws MediaNotFoundException {
@@ -62,7 +63,7 @@ public class ReportService {
                     logger.info("Video has been unbanned!");
                 }
                 if(report.getType().equals(ReportTypes.COMMENT.name())){
-                    commentService.unbanComment(report.getMediaId());
+                    commentModerationServiceImpl.unbanComment(report.getMediaId());
                     logger.info("Comment has been unbanned!");
                 }
             }

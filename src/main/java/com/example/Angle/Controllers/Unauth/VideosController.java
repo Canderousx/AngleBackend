@@ -8,7 +8,7 @@ import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.Comment;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
-import com.example.Angle.Services.CommentService;
+import com.example.Angle.Services.Comments.CommentRetrievalServiceImpl;
 import com.example.Angle.Services.ImageService;
 import com.example.Angle.Services.VideoService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,7 +40,7 @@ public class VideosController {
     ImageService imageService;
 
     @Autowired
-    CommentService commentService;
+    CommentRetrievalServiceImpl commentRetrievalServiceImpl;
 
     @Autowired
     AccountService accountService;
@@ -75,8 +75,8 @@ public class VideosController {
                                     @RequestParam int pageSize,
                                     HttpServletResponse httpResponse) throws IOException, ClassNotFoundException, MediaNotFoundException {
         Pageable paginateSettings = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        httpResponse.setHeader("totalComments", commentService.getTotalCommentsNum(id));
-        return commentService.getVideoComments(id,paginateSettings);
+        httpResponse.setHeader("totalComments", String.valueOf(commentRetrievalServiceImpl.getTotalCommentsNum(id)));
+        return commentRetrievalServiceImpl.getVideoComments(id,paginateSettings);
     }
 
 

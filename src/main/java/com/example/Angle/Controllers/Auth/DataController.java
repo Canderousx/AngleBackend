@@ -5,26 +5,15 @@ import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.UserRolesService;
-import com.example.Angle.Models.ReportSolutions;
-import com.example.Angle.Models.Video;
-import com.example.Angle.Repositories.CommentRepository;
-import com.example.Angle.Repositories.ReportRepository;
-import com.example.Angle.Repositories.VideoRepository;
-import com.example.Angle.Services.CommentService;
 import com.example.Angle.Services.ReportService;
 import com.example.Angle.Services.VideoService;
-import jakarta.annotation.PostConstruct;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -47,52 +36,12 @@ public class DataController {
     @Autowired
     private AccountService accountService;
 
-    @Autowired
-    private CommentService commentService;
 
 
     @Autowired
     private ReportService reportService;
 
     private final Logger logger = LogManager.getLogger(DataController.class);
-
-
-    @RequestMapping(value = "/banVideo",method = RequestMethod.POST)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<SimpleResponse> banVideo(@RequestBody String reason,
-                                                   @RequestParam String videoId,
-                                                   @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
-        this.videoService.banVideo(videoId);
-        this.reportService.solveReport(ReportSolutions.MEDIA_BANNED,reason,reportId);
-        return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
-    }
-    @RequestMapping(value = "/banComment",method = RequestMethod.POST)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<SimpleResponse> banComment(@RequestBody String reason,
-                                                   @RequestParam String commentId,
-                                                   @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
-        this.commentService.banComment(commentId);
-        this.reportService.solveReport(ReportSolutions.MEDIA_BANNED,reason,reportId);
-        return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
-    }
-
-    @RequestMapping(value = "/banAccount",method = RequestMethod.POST)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<SimpleResponse> banAccount(@RequestBody String reason,
-                                                     @RequestParam String accountId,
-                                                     @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
-        this.accountService.banAccount(accountId);
-        this.reportService.solveReport(ReportSolutions.ACCOUNT_BANNED,reason,reportId);
-        return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
-    }
-
-    @RequestMapping(value = "/cancelReport",method = RequestMethod.POST)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<SimpleResponse> cancelReport(@RequestBody String reason,
-                                                     @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
-        this.reportService.solveReport(ReportSolutions.CANCELED,reason,reportId);
-        return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
-    }
 
 
     @RequestMapping(value = "/deleteVideo",method = RequestMethod.DELETE)
