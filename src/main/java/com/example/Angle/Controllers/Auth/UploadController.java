@@ -11,12 +11,11 @@ import com.example.Angle.Models.Tag;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
-import com.example.Angle.Services.*;
 import com.example.Angle.Services.FFMpeg.FFMpegConverterService;
 import com.example.Angle.Services.FFMpeg.FFMpegDataRetrievalService;
-import com.example.Angle.Services.FFMpeg.Interfaces.FFMpegDataRetrievalInterface;
 import com.example.Angle.Services.Files.FileSaveService;
 import com.example.Angle.Services.Images.ImageSaveService;
+import com.example.Angle.Services.Tags.TagSaverService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ public class UploadController {
 
     private final FileSaveService fileSaveService;
 
-    private final TagService tagService;
+    private final TagSaverService tagSaverService;
 
     private final VideoRepository videoRepository;
 
@@ -55,7 +54,7 @@ public class UploadController {
 
     @Autowired
     public UploadController(FileSaveService fileSaveService,
-                            TagService tagService,
+                            TagSaverService tagSaverService,
                             VideoRepository videoRepository,
                             AccountRepository accountRepository,
                             EnvironmentVariables environmentVariables,
@@ -64,7 +63,7 @@ public class UploadController {
                             FFMpegConverterService ffMpegConverterService
                             ){
         this.fileSaveService = fileSaveService;
-        this.tagService = tagService;
+        this.tagSaverService = tagSaverService;
         this.videoRepository = videoRepository;
         this.accountRepository = accountRepository;
         this.environmentVariables = environmentVariables;
@@ -123,7 +122,7 @@ public class UploadController {
             video.setName(metadata.getName());
             video.setDescription(metadata.getDescription());
             Set<Tag> tags = new HashSet<>(metadata.getTags());
-            video.setTags(tagService.setTags(metadata));
+            video.setTags(tagSaverService.setTags(metadata));
             try {
                 video.setThumbnail(imageSaveService.saveVideoThumbnail(
                         metadata.getThumbnail(),
