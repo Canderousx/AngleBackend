@@ -5,6 +5,7 @@ import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Services.Images.ImageRetrievalService;
 import com.example.Angle.Services.Videos.Interfaces.VideoThumbnailsInterface;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class VideoThumbnailsService implements VideoThumbnailsInterface {
 
     private final ImageRetrievalService imageRetrievalService;
 
+    @Autowired
     public VideoThumbnailsService(AccountService accountService, ImageRetrievalService imageRetrievalService) {
         this.accountService = accountService;
         this.imageRetrievalService = imageRetrievalService;

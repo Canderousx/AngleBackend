@@ -6,6 +6,7 @@ import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.Videos.Interfaces.VideoSearchInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class VideoSearchService implements VideoSearchInterface {
 
     private final Logger log = LogManager.getLogger(VideoSearchService.class);
 
+    @Autowired
     public VideoSearchService(VideoRepository videoRepository, VideoThumbnailsService videoThumbnailsService,
                               TagRepository tagRepository) {
         this.videoRepository = videoRepository;
