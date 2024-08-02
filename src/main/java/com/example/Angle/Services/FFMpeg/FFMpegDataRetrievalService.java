@@ -43,6 +43,7 @@ public class FFMpegDataRetrievalService implements FFMpegDataRetrievalInterface 
         }
         return textBuilder.toString();
     }
+
     @Override
     public double getVideoDuration(String rawPath) throws IOException, InterruptedException {
         ProcessBuilder builder = new ProcessBuilder("ffprobe", "-v", "error", "-show_entries",

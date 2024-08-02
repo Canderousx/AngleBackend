@@ -10,7 +10,7 @@ import com.example.Angle.Config.Models.PasswordRestoreRequest;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.JwtService;
-import com.example.Angle.Services.EmailService;
+import com.example.Angle.Services.Email.MaintenanceMailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,13 +49,13 @@ public class Login {
     AccountService accountService;
 
     @Autowired
-    EmailService emailService;
+    MaintenanceMailsService maintenanceMailsService;
 
 
     @RequestMapping(value = "/passwordRecovery",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>forgotPassword(@RequestBody String email,
                                                         HttpServletRequest request){
-        emailService.restorePassword(email,request.getRemoteAddr());
+        maintenanceMailsService.restorePassword(email,request.getRemoteAddr());
         return ResponseEntity.ok(new SimpleResponse("If account exists, you should receive a password reset instruction on your email"));
     }
 
@@ -67,7 +67,7 @@ public class Login {
             if (jwtService.validatePasswordRecoveryToken(token, request.getRemoteAddr())) {
                 String username = jwtService.extractUsername(token);
                 accountService.changeUserPassword(username, passwordRequest.getNewPassword());
-                emailService.passwordChangeMail(username);
+                maintenanceMailsService.passwordChangeMail(username);
                 jwtService.invalidateToken(token);
                 return ResponseEntity.ok(new SimpleResponse("Password has been changed! You can now sign in!"));
             }
@@ -90,7 +90,7 @@ public class Login {
         try {
             accountService.checkEmailConfirmation(authReq.getEmail());
         } catch (BadRequestException e) {
-            emailService.confirmationEmail(authReq.getEmail());
+            maintenanceMailsService.confirmationEmail(authReq.getEmail());
             throw new BadRequestException(e.getMessage());
         } catch (MediaNotFoundException e) {
             throw new BadRequestException("Account doesn't exist");

@@ -5,7 +5,7 @@ import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Config.SecRepositories.UserRoleRepository;
-import com.example.Angle.Services.EmailService;
+import com.example.Angle.Services.Email.MaintenanceMailsService;
 import jakarta.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,9 +29,6 @@ public class RolesInit {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @Autowired
-    EmailService emailService;
-
     @PostConstruct
     public void rolesDbInitialization(){
         if(userRoleRepository.findAll().isEmpty()){
@@ -49,10 +46,6 @@ public class RolesInit {
         initalizeDefaultAdminAccount();
     }
 
-    public void sendTestMail(){
-        emailService.sendEmail("shrineofreflection@gmail.com","TestMail","Mail testowy z Angle");
-
-    }
 
 
     public void initalizeDefaultAdminAccount(){

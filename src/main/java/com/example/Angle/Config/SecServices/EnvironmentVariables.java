@@ -32,6 +32,8 @@ public class EnvironmentVariables {
 
     private String hlsFilesPath;
 
+    private String frontUrl;
+
 
     public boolean checkIfNotNull(){
         for(Field field : this.getClass().getDeclaredFields()){

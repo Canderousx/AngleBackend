@@ -10,7 +10,7 @@ import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecRepositories.UserRoleRepository;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.JwtService;
-import com.example.Angle.Services.EmailService;
+import com.example.Angle.Services.Email.MaintenanceMailsService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +39,7 @@ public class Signup {
     UserRoleRepository userRoleRepository;
 
     @Autowired
-    EmailService emailService;
+    MaintenanceMailsService maintenanceMailsService;
 
     @Autowired
     JwtService jwtService;
@@ -53,7 +53,7 @@ public class Signup {
             accountService.addUser(account);
             return ResponseEntity.ok(new SimpleResponse("Email has been confirmed! You're able to login now."));
         }
-        emailService.confirmationEmail(account.getEmail());
+        maintenanceMailsService.confirmationEmail(account.getEmail());
         throw new BadRequestException("Confirmation timeout! New confirmation email has been sent!");
     }
 
@@ -91,7 +91,7 @@ public class Signup {
         account.setConfirmed(false);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         accountService.addUser(account);
-        emailService.confirmationEmail(account.getEmail());
+        maintenanceMailsService.confirmationEmail(account.getEmail());
         return ResponseEntity.ok(new SimpleResponse("In order to login you need to confirm your email. Check your mailbox"));
     }
 

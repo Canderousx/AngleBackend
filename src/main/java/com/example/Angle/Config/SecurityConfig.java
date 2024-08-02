@@ -52,6 +52,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .thumbnailsPath(System.getenv("ANGLE_THUMBNAILS_PATH"))
                 .rawFilesPath(System.getenv("ANGLE_RAW_FILES_PATH"))
                 .hlsFilesPath(System.getenv("ANGLE_HLS_FILES_PATH"))
+                .frontUrl(System.getenv("ANGLE_FRONT_URL"))
                 .build();
         if(!env.checkIfNotNull()){
             logger.error("ERROR: SOME OF YOUR SYSTEM VARIABLES DON'T EXIST. PLEASE CHECK IT OUT IMMEDIATELY");
