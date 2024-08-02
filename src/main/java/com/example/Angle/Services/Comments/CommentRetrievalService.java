@@ -21,7 +21,7 @@ import java.util.Optional;
 
 
 @Service
-public class CommentRetrievalServiceImpl implements CommentRetrieval {
+public class CommentRetrievalService implements CommentRetrieval {
 
     private final CommentRepository commentRepository;
 
@@ -29,11 +29,11 @@ public class CommentRetrievalServiceImpl implements CommentRetrieval {
 
     private final ImageRetrievalService imageRetrievalService;
 
-    private final Logger log = LogManager.getLogger(CommentManagementServiceImpl.class);
+    private final Logger log = LogManager.getLogger(CommentManagementService.class);
 
 
     @Autowired
-    public CommentRetrievalServiceImpl(CommentRepository commentRepository, ImageRetrievalService imageRetrievalService, AccountService accountService){
+    public CommentRetrievalService(CommentRepository commentRepository, ImageRetrievalService imageRetrievalService, AccountService accountService){
         this.commentRepository = commentRepository;
         this.imageRetrievalService = imageRetrievalService;
         this.accountService = accountService;

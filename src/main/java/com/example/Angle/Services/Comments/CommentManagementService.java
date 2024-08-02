@@ -13,27 +13,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
 
 
 @Service
-public class CommentManagementServiceImpl implements CommentManagement {
+public class CommentManagementService implements CommentManagement {
 
 
-    private final Logger log = LogManager.getLogger(CommentManagementServiceImpl.class);
+    private final Logger log = LogManager.getLogger(CommentManagementService.class);
     private final CommentRepository commentRepository;
 
     private final AccountService accountService;
 
-    private final CommentRetrievalServiceImpl commentRetrievalServiceImpl;
+    private final CommentRetrievalService commentRetrievalServiceImpl;
 
     @Autowired
-    public CommentManagementServiceImpl(CommentRepository commentRepository,
-                                        AccountService accountService,
-                                        CommentRetrievalServiceImpl commentRetrievalServiceImpl){
+    public CommentManagementService(CommentRepository commentRepository,
+                                    AccountService accountService,
+                                    CommentRetrievalService commentRetrievalService){
         this.commentRepository = commentRepository;
         this.accountService = accountService;
-        this.commentRetrievalServiceImpl = commentRetrievalServiceImpl;
+        this.commentRetrievalServiceImpl = commentRetrievalService;
     }
     @Override
     public void addComment(Comment comment) throws BadRequestException {

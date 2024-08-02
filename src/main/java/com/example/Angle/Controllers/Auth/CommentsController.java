@@ -3,8 +3,8 @@ package com.example.Angle.Controllers.Auth;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Models.Comment;
-import com.example.Angle.Services.Comments.CommentManagementServiceImpl;
-import com.example.Angle.Services.Comments.CommentRetrievalServiceImpl;
+import com.example.Angle.Services.Comments.CommentManagementService;
+import com.example.Angle.Services.Comments.CommentRetrievalService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,15 +25,15 @@ public class CommentsController {
 
     private final Logger logger = LogManager.getLogger(CommentsController.class);
 
-    private final CommentRetrievalServiceImpl commentRetrievalService;
+    private final CommentRetrievalService commentRetrievalService;
 
-    private final CommentManagementServiceImpl commentManagementService;
+    private final CommentManagementService commentManagementService;
 
     @Autowired
-    public CommentsController(CommentRetrievalServiceImpl commentRetrievalServiceImpl,
-                              CommentManagementServiceImpl commentManagementServiceImpl){
-        this.commentRetrievalService = commentRetrievalServiceImpl;
-        this.commentManagementService = commentManagementServiceImpl;
+    public CommentsController(CommentRetrievalService commentRetrievalService,
+                              CommentManagementService commentManagementService){
+        this.commentRetrievalService = commentRetrievalService;
+        this.commentManagementService = commentManagementService;
     }
 
     @RequestMapping(value = "/getComment",method = RequestMethod.GET)

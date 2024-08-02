@@ -7,7 +7,7 @@ import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Config.SecServices.UserRolesService;
-import com.example.Angle.Services.VideoService;
+import com.example.Angle.Services.Videos.VideoModerationService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,15 +25,14 @@ import java.util.List;
 @RequestMapping("/auth")
 public class DataController {
 
-
-    @Autowired
-    private VideoService videoService;
-
     @Autowired
     private UserRolesService userRolesService;
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    VideoModerationService videoModerationService;
 
 
     private final Logger logger = LogManager.getLogger(DataController.class);
@@ -41,7 +40,7 @@ public class DataController {
 
     @RequestMapping(value = "/deleteVideo",method = RequestMethod.DELETE)
     public ResponseEntity<SimpleResponse>deleteVideo(@RequestParam String id) throws IOException, MediaNotFoundException, ClassNotFoundException, FileServiceException {
-        videoService.removeVideo(id);
+        videoModerationService.removeVideo(id);
         return ResponseEntity.ok(new SimpleResponse("Video has been removed!"));
 
     }
@@ -67,10 +66,10 @@ public class DataController {
         Account account = accountService.getCurrentUser();
             if(rating){
                 if(!account.getLikedVideos().contains(v)){
-                    this.videoService.likeVideo(v);
+                    this.videoModerationService.likeVideo(v);
                     if(account.getDislikedVideos().contains(v)){
                         logger.info("Video was disliked before... Removing dislike");
-                        this.videoService.removeDislike(v);
+                        this.videoModerationService.removeDislike(v);
                         account.getDislikedVideos().remove(v);
                     }
                     account.getLikedVideos().add(v);
@@ -79,10 +78,10 @@ public class DataController {
             }
             if(!rating){
                 if(!account.getDislikedVideos().contains(v)){
-                    this.videoService.dislikeVideo(v);
+                    this.videoModerationService.dislikeVideo(v);
                     if(account.getLikedVideos().contains(v)){
                         logger.info("Video was liked before... Removing like");
-                        this.videoService.removeLike(v);
+                        this.videoModerationService.removeLike(v);
                         account.getLikedVideos().remove(v);
                     }
                     account.getDislikedVideos().add(v);

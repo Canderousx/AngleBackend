@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class CommentModerationServiceImpl implements CommentModeration {
+public class CommentModerationService implements CommentModeration {
 
     private final CommentRepository commentRepository;
 
     @Autowired
-    public CommentModerationServiceImpl(CommentRepository commentRepository){
+    public CommentModerationService(CommentRepository commentRepository){
         this.commentRepository = commentRepository;
     }
     @Override

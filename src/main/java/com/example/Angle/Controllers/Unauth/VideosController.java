@@ -8,8 +8,9 @@ import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.Comment;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
-import com.example.Angle.Services.Comments.CommentRetrievalServiceImpl;
-import com.example.Angle.Services.VideoService;
+import com.example.Angle.Services.Comments.CommentRetrievalService;
+import com.example.Angle.Services.Videos.VideoModerationService;
+import com.example.Angle.Services.Videos.VideoRetrievalService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -33,10 +34,14 @@ public class VideosController {
 
 
     @Autowired
-    VideoService videoService;
+    VideoRetrievalService videoRetrievalService;
 
     @Autowired
-    CommentRetrievalServiceImpl commentRetrievalServiceImpl;
+    VideoModerationService videoModerationService;
+
+
+    @Autowired
+    CommentRetrievalService commentRetrievalService;
 
     @Autowired
     AccountService accountService;
@@ -44,13 +49,13 @@ public class VideosController {
 
     @RequestMapping(value = "/registerView",method = RequestMethod.PATCH)
     public ResponseEntity<SimpleResponse>registerView(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
-            this.videoService.registerView(id);
+            this.videoModerationService.registerView(id);
             return ResponseEntity.ok(new SimpleResponse("View registered!"));
     }
 
     @RequestMapping(value = "/getSimilar",method = RequestMethod.GET)
     public List<Video>getSimilar(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
-        return this.videoService.getSimilar(id);
+        return this.videoRetrievalService.getSimilar(id);
     }
 
 
@@ -58,7 +63,7 @@ public class VideosController {
 
     @RequestMapping(value = "/getBySubscribers")
     public List<Video>getBySubscribers(@RequestParam String page) throws BadRequestException {
-        return videoService.getRandomBySubscribers(Integer.parseInt(page));
+        return videoRetrievalService.getRandomBySubscribers(Integer.parseInt(page));
     }
 
 
@@ -71,14 +76,14 @@ public class VideosController {
                                     @RequestParam int pageSize,
                                     HttpServletResponse httpResponse) throws IOException, ClassNotFoundException, MediaNotFoundException {
         Pageable paginateSettings = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        httpResponse.setHeader("totalComments", String.valueOf(commentRetrievalServiceImpl.getTotalCommentsNum(id)));
-        return commentRetrievalServiceImpl.getVideoComments(id,paginateSettings);
+        httpResponse.setHeader("totalComments", String.valueOf(commentRetrievalService.getTotalCommentsNum(id)));
+        return commentRetrievalService.getVideoComments(id,paginateSettings);
     }
 
 
     @RequestMapping(value = "/getAll",method = RequestMethod.GET)
     public List<Video> getAllVideos(@RequestParam int page) throws IOException, ClassNotFoundException {
-        return videoService.getAllVideos(page);
+        return videoRetrievalService.getAllVideos(page);
     }
 
     @RequestMapping(value = "/getUserById",method = RequestMethod.GET)
@@ -88,12 +93,12 @@ public class VideosController {
 
     @RequestMapping(value = "/getVideo",method = RequestMethod.GET)
     public Video getVideo(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
-        return videoService.getVideo(id);
+        return videoRetrievalService.getVideo(id);
     }
 
     @RequestMapping(value = "/getMostPopular",method = RequestMethod.GET)
     public List<Video> getPopular(){
-        return videoService.findMostPopular();
+        return videoRetrievalService.getMostPopular();
     }
 
     @RequestMapping(value = "/getUserVideos",method = RequestMethod.GET)
@@ -102,9 +107,9 @@ public class VideosController {
                                      @RequestParam int pageSize,
                                      HttpServletResponse response) throws BadRequestException, MediaNotFoundException {
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        int totalVideos = videoService.howManyUserVideos(id);
+        int totalVideos = videoRetrievalService.howManyUserVideos(id);
         response.setHeader("totalVideos",String.valueOf(totalVideos));
-        return videoService.getUserVideos(id,pageable);
+        return videoRetrievalService.getUserVideos(id,pageable);
     }
 
     @RequestMapping(value = "/getAccount",method = RequestMethod.GET)

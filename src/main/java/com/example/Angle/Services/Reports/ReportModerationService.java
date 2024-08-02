@@ -7,9 +7,9 @@ import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportSolutions;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Repositories.ReportRepository;
-import com.example.Angle.Services.Comments.CommentModerationServiceImpl;
+import com.example.Angle.Services.Comments.CommentModerationService;
 import com.example.Angle.Services.Reports.Interfaces.ReportModerationInterface;
-import com.example.Angle.Services.VideoService;
+import com.example.Angle.Services.Videos.VideoModerationService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,20 +26,20 @@ public class ReportModerationService implements ReportModerationInterface {
 
     private final Logger logger = LogManager.getLogger(ReportModerationService.class);
 
-    private final VideoService videoService;
-
-    private final CommentModerationServiceImpl commentModerationService;
+    private final CommentModerationService commentModerationService;
 
     private final AccountService accountService;
 
+    private final VideoModerationService videoModerationService;
+
     @Autowired
     public ReportModerationService(ReportRepository reportRepository,
-                                   VideoService videoService,
-                                   CommentModerationServiceImpl commentModerationServiceImpl,
-                                   AccountService accountService) {
+                                   CommentModerationService commentModerationService,
+                                   AccountService accountService,
+                                   VideoModerationService videoModerationService) {
         this.reportRepository = reportRepository;
-        this.videoService = videoService;
-        this.commentModerationService = commentModerationServiceImpl;
+        this.videoModerationService = videoModerationService;
+        this.commentModerationService = commentModerationService;
         this.accountService = accountService;
     }
 
@@ -53,7 +53,7 @@ public class ReportModerationService implements ReportModerationInterface {
             if(report.getSolution().equals(ReportSolutions.MEDIA_BANNED.name()) && !solution.equals(ReportSolutions.ACCOUNT_BANNED.name())){
                 logger.info("UNBANNING MEDIA ID: "+report.getMediaId());
                 if(report.getType().equals(ReportTypes.VIDEO.name())){
-                    videoService.unbanVideo(report.getMediaId());
+                    videoModerationService.unbanVideo(report.getMediaId());
                     logger.info("Video has been unbanned!");
                 }
                 if(report.getType().equals(ReportTypes.COMMENT.name())){

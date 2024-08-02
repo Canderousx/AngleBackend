@@ -5,9 +5,9 @@ import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.AccountService;
 import com.example.Angle.Models.ReportSolutions;
-import com.example.Angle.Services.Comments.CommentModerationServiceImpl;
+import com.example.Angle.Services.Comments.CommentModerationService;
 import com.example.Angle.Services.Reports.ReportModerationService;
-import com.example.Angle.Services.VideoService;
+import com.example.Angle.Services.Videos.VideoModerationService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,24 +19,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
-
-    private final VideoService videoService;
-
     private final AccountService accountService;
 
     private final ReportModerationService reportModerationService;
 
-    private final CommentModerationServiceImpl commentModerationService;
+    private final CommentModerationService commentModerationService;
+
+
+    private final VideoModerationService videoModerationService;
+
 
     @Autowired
-    public AdminController(VideoService videoService,
-                           AccountService accountService,
+    public AdminController(AccountService accountService,
                            ReportModerationService reportModerationService,
-                           CommentModerationServiceImpl commentModerationServiceImpl){
-        this.videoService = videoService;
+                           CommentModerationService commentModerationService,
+                           VideoModerationService videoModerationService){
+        this.videoModerationService = videoModerationService;
         this.accountService = accountService;
         this.reportModerationService = reportModerationService;
-        this.commentModerationService = commentModerationServiceImpl;
+        this.commentModerationService = commentModerationService;
     }
 
     @RequestMapping(value = "/banAccount",method = RequestMethod.POST)
@@ -52,7 +53,7 @@ public class AdminController {
     public ResponseEntity<SimpleResponse> banVideo(@RequestBody String reason,
                                                    @RequestParam String videoId,
                                                    @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
-        this.videoService.banVideo(videoId);
+        this.videoModerationService.banVideo(videoId);
         this.reportModerationService.solveReport(ReportSolutions.MEDIA_BANNED,reason,reportId);
         return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
     }
