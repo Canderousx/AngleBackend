@@ -1,7 +1,7 @@
 package com.example.Angle.Services.Videos;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Services.Images.ImageRetrievalService;
 import com.example.Angle.Services.Videos.Interfaces.VideoThumbnailsInterface;
@@ -15,20 +15,21 @@ import java.util.List;
 @Service
 public class VideoThumbnailsService implements VideoThumbnailsInterface {
 
-    private final AccountService accountService;
+    private final AccountRetrievalService accountRetrievalService;
 
     private final ImageRetrievalService imageRetrievalService;
 
     @Autowired
-    public VideoThumbnailsService(AccountService accountService, ImageRetrievalService imageRetrievalService) {
-        this.accountService = accountService;
+    public VideoThumbnailsService(AccountRetrievalService accountRetrievalService,
+                                  ImageRetrievalService imageRetrievalService) {
+        this.accountRetrievalService = accountRetrievalService;
         this.imageRetrievalService = imageRetrievalService;
     }
 
     @Override
     public void processThumbnail(Video video) throws IOException, ClassNotFoundException, MediaNotFoundException {
         video.setAuthorAvatar(
-                accountService.generateAccountResponse(video.getAuthorId()).getAvatar()
+                accountRetrievalService.generateAccountResponse(video.getAuthorId()).getAvatar()
         );
         video.setThumbnail(
                 imageRetrievalService.getImage(

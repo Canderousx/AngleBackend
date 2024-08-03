@@ -2,7 +2,7 @@ package com.example.Angle.Services.Videos;
 
 import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.Comments.CommentManagementService;
@@ -27,19 +27,19 @@ public class VideoModerationService implements VideoModerationInterface {
 
     private final CommentManagementService commentManagementService;
 
-    private final AccountService accountService;
+    private final AccountAdminService accountAdminService;
 
     @Autowired
     public VideoModerationService(VideoRetrievalService videoRetrievalService,
                                   VideoRepository videoRepository,
                                   FileDeleterService fileDeleterService,
                                   CommentManagementService commentManagementService,
-                                  AccountService accountService) {
+                                  AccountAdminService accountAdminService) {
         this.videoRetrievalService = videoRetrievalService;
         this.videoRepository = videoRepository;
         this.fileDeleterService = fileDeleterService;
         this.commentManagementService = commentManagementService;
-        this.accountService = accountService;
+        this.accountAdminService = accountAdminService;
     }
 
     @Override
@@ -55,8 +55,8 @@ public class VideoModerationService implements VideoModerationInterface {
         fileDeleterService.deleteVideoFiles(video);
         log.info("Files removed successfully! Removing database entries");
         commentManagementService.removeVideoComments(video.getId());
-        accountService.removeLikeInteractions(video.getId());
-        accountService.removeDislikeInteractions(video.getId());
+        accountAdminService.removeLikeInteractions(video.getId());
+        accountAdminService.removeDislikeInteractions(video.getId());
         videoRepository.deleteTagAssociations(video.getId());
         videoRepository.delete(video);
         log.info("DB cleaned.");

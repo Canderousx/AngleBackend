@@ -5,8 +5,8 @@ import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecServices.AccountService;
-import com.example.Angle.Config.SecServices.UserRolesService;
+import com.example.Angle.Config.SecServices.Account.AccountAdminService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Services.Videos.VideoModerationService;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -26,10 +26,10 @@ import java.util.List;
 public class DataController {
 
     @Autowired
-    private UserRolesService userRolesService;
+    private AccountRetrievalService accountRetrievalService;
 
     @Autowired
-    private AccountService accountService;
+    AccountAdminService accountAdminService;
 
     @Autowired
     VideoModerationService videoModerationService;
@@ -49,7 +49,7 @@ public class DataController {
     @RequestMapping(value = "/checkRated",method = RequestMethod.GET)
     public List<Boolean> checkRated (@RequestParam String v) throws BadRequestException {
         List<Boolean> ratingData = new ArrayList<>();
-        Account account = accountService.getCurrentUser();
+        Account account = accountRetrievalService.getCurrentUser();
         if(account.getLikedVideos().contains(v) || account.getDislikedVideos().contains(v)){
             if(account.getLikedVideos().contains(v)){
                 ratingData.add(true);
@@ -63,7 +63,7 @@ public class DataController {
     @RequestMapping(value = "/rateVideo",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse> rateVideo(@RequestParam String v,
                                                     @RequestBody boolean rating) throws MediaNotFoundException, BadRequestException {
-        Account account = accountService.getCurrentUser();
+        Account account = accountRetrievalService.getCurrentUser();
             if(rating){
                 if(!account.getLikedVideos().contains(v)){
                     this.videoModerationService.likeVideo(v);
@@ -73,7 +73,7 @@ public class DataController {
                         account.getDislikedVideos().remove(v);
                     }
                     account.getLikedVideos().add(v);
-                    accountService.addUser(account);
+                    accountAdminService.addUser(account);
                 }
             }
             if(!rating){
@@ -85,7 +85,7 @@ public class DataController {
                         account.getLikedVideos().remove(v);
                     }
                     account.getDislikedVideos().add(v);
-                    accountService.addUser(account);
+                    accountAdminService.addUser(account);
                 }
             }
         return ResponseEntity.ok(new SimpleResponse("Operation ended successfully"));

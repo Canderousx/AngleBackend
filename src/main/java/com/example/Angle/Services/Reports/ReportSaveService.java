@@ -1,6 +1,6 @@
 package com.example.Angle.Services.Reports;
 
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Repositories.ReportRepository;
@@ -18,20 +18,20 @@ public class ReportSaveService implements ReportSaveInterface {
 
     private final Logger logger = LogManager.getLogger(ReportSaveService.class);
 
-    private final AccountService accountService;
+    private final AccountRetrievalService accountRetrievalService;
 
     private final ReportRepository reportRepository;
 
     @Autowired
-    public ReportSaveService(AccountService accountService,
+    public ReportSaveService(AccountRetrievalService accountRetrievalService,
                              ReportRepository reportRepository){
-        this.accountService = accountService;
+        this.accountRetrievalService = accountRetrievalService;
         this.reportRepository = reportRepository;
     }
     @Override
     public void saveReport(String[] reportValues, ReportTypes type) throws BadRequestException {
         Report report = new Report();
-        report.setReporterId(accountService.getCurrentUser().getId());
+        report.setReporterId(accountRetrievalService.getCurrentUser().getId());
         report.setReportedAccountId(reportValues[3]);
         report.setContent(reportValues[2]);
         report.setCategory(reportValues[1]);

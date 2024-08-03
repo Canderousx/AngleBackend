@@ -2,7 +2,8 @@ package com.example.Angle.Services.Reports;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountAdminService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportSolutions;
 import com.example.Angle.Models.ReportTypes;
@@ -28,19 +29,23 @@ public class ReportModerationService implements ReportModerationInterface {
 
     private final CommentModerationService commentModerationService;
 
-    private final AccountService accountService;
+    private final AccountAdminService accountAdminService;
+
+    private final AccountRetrievalService accountRetrievalService;
 
     private final VideoModerationService videoModerationService;
 
     @Autowired
     public ReportModerationService(ReportRepository reportRepository,
                                    CommentModerationService commentModerationService,
-                                   AccountService accountService,
-                                   VideoModerationService videoModerationService) {
+                                   AccountAdminService accountAdminService,
+                                   VideoModerationService videoModerationService,
+                                   AccountRetrievalService accountRetrievalService) {
         this.reportRepository = reportRepository;
         this.videoModerationService = videoModerationService;
         this.commentModerationService = commentModerationService;
-        this.accountService = accountService;
+        this.accountAdminService = accountAdminService;
+        this.accountRetrievalService = accountRetrievalService;
     }
 
     @Override
@@ -63,12 +68,12 @@ public class ReportModerationService implements ReportModerationInterface {
             }
             if(report.getSolution().equals(ReportSolutions.ACCOUNT_BANNED.name()) && !solution.equals(ReportSolutions.ACCOUNT_BANNED.name())){
                 logger.info("UNBANNING ACCOUNT ID: "+report.getMediaId());
-                accountService.unbanAccount(report.getReportedAccountId());
+                accountAdminService.unbanAccount(report.getReportedAccountId());
                 logger.info("Account has been unbanned!");
             }
         }
 
-        Account account = accountService.getCurrentUser();
+        Account account = accountRetrievalService.getCurrentUser();
         report.setSolution(solution.name());
         report.setReason(reason);
         report.setResolved(true);

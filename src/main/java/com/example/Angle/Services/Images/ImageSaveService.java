@@ -1,6 +1,6 @@
 package com.example.Angle.Services.Images;
 
-import com.example.Angle.Config.SecServices.EnvironmentVariables;
+import com.example.Angle.Config.Models.EnvironmentVariables;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Services.Images.Interfaces.ImagesSaveInterface;
 import org.apache.logging.log4j.LogManager;

@@ -1,13 +1,12 @@
 package com.example.Angle.Services.FFMpeg;
 
 import com.example.Angle.Config.Exceptions.FileStoreException;
-import com.example.Angle.Config.SecServices.EnvironmentVariables;
+import com.example.Angle.Config.Models.EnvironmentVariables;
 import com.example.Angle.Services.FFMpeg.Interfaces.FFMpegConverterInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;

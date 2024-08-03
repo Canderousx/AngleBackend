@@ -2,7 +2,7 @@ package com.example.Angle.Services.Comments;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Comment;
 import com.example.Angle.Repositories.CommentRepository;
 import com.example.Angle.Services.Comments.Interfaces.CommentRetrieval;
@@ -25,7 +25,7 @@ public class CommentRetrievalService implements CommentRetrieval {
 
     private final CommentRepository commentRepository;
 
-    private final AccountService accountService;
+    private final AccountRetrievalService accountRetrievalService;
 
     private final ImageRetrievalService imageRetrievalService;
 
@@ -33,10 +33,12 @@ public class CommentRetrievalService implements CommentRetrieval {
 
 
     @Autowired
-    public CommentRetrievalService(CommentRepository commentRepository, ImageRetrievalService imageRetrievalService, AccountService accountService){
+    public CommentRetrievalService(CommentRepository commentRepository,
+                                   ImageRetrievalService imageRetrievalService,
+                                   AccountRetrievalService accountRetrievalService){
         this.commentRepository = commentRepository;
         this.imageRetrievalService = imageRetrievalService;
-        this.accountService = accountService;
+        this.accountRetrievalService = accountRetrievalService;
     }
     @Override
     public Comment getComment(String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
@@ -89,7 +91,7 @@ public class CommentRetrievalService implements CommentRetrieval {
     }
 
     private Comment fillCommentData(Comment comment) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        Account account = accountService.getUser(comment.getAuthorId());
+        Account account = accountRetrievalService.getUser(comment.getAuthorId());
         if(account!=null){
             comment.setAuthorAvatar(imageRetrievalService.getImage(account.getAvatar()).getContent());
             comment.setAuthorName(account.getUsername());

@@ -2,7 +2,7 @@ package com.example.Angle.Services.Files;
 
 
 import com.example.Angle.Config.Exceptions.FileStoreException;
-import com.example.Angle.Config.SecServices.EnvironmentVariables;
+import com.example.Angle.Config.Models.EnvironmentVariables;
 import com.example.Angle.Services.Files.Interfaces.FilesSaveInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

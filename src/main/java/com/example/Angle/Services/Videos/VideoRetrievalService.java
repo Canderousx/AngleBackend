@@ -3,10 +3,9 @@ package com.example.Angle.Services.Videos;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
-import com.example.Angle.Services.Images.ImageRetrievalService;
 import com.example.Angle.Services.Videos.Interfaces.VideoRetrievalInterface;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +22,7 @@ import java.util.*;
 @Service
 public class VideoRetrievalService implements VideoRetrievalInterface {
 
-    private final AccountService accountService;
+    private final AccountRetrievalService accountRetrievalService;
 
     private final VideoRepository videoRepository;
 
@@ -32,10 +31,10 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     private final Logger log = LogManager.getLogger(VideoRetrievalService.class);
 
     @Autowired
-    public VideoRetrievalService(AccountService accountService,
+    public VideoRetrievalService(AccountRetrievalService accountRetrievalService,
                                  VideoRepository videoRepository,
                                  VideoThumbnailsService videoThumbnailsService) {
-        this.accountService = accountService;
+        this.accountRetrievalService = accountRetrievalService;
         this.videoRepository = videoRepository;
         this.videoThumbnailsService = videoThumbnailsService;
     }
@@ -110,7 +109,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
 
     @Override
     public List<Video> getRandomBySubscribers(int page) throws BadRequestException {
-        Account account = accountService.getCurrentUser();
+        Account account = accountRetrievalService.getCurrentUser();
         if(account.getSubscribedIds().isEmpty()){
             return new ArrayList<>();
         }

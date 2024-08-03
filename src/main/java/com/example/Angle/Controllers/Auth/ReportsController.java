@@ -4,11 +4,8 @@ package com.example.Angle.Controllers.Auth;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.AccountRes;
-import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecRepositories.AccountRepository;
-import com.example.Angle.Config.SecServices.AccountService;
-import com.example.Angle.Models.Comment;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.DTO.ReportDTO;
 import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportCategories;
@@ -22,18 +19,15 @@ import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Role;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -43,7 +37,7 @@ import java.util.List;
 public class ReportsController {
 
     @Autowired
-    AccountService accountService;
+    AccountRetrievalService accountRetrievalService;
 
     @Autowired
     ReportRepository reportRepository;
@@ -114,7 +108,7 @@ public class ReportsController {
                                      @RequestParam String sortBy,
                                      @RequestParam String order,
                                      HttpServletResponse response) throws BadRequestException {
-        Account account = accountService.getCurrentUser();
+        Account account = accountRetrievalService.getCurrentUser();
         Pageable pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).ascending());
         if(order.contains("desc")){
             pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).descending());
@@ -145,12 +139,12 @@ public class ReportsController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<AccountRes>getUsersInvolved(@RequestParam String id) throws IOException, ClassNotFoundException, MediaNotFoundException {
         Report report = reportRetrievalService.getReport(id);
-        Account reporter = accountService.getUser(report.getReporterId());
-        Account reported = accountService.getMediaAuthor(report.getType(),report.getMediaId());
+        Account reporter = accountRetrievalService.getUser(report.getReporterId());
+        Account reported = accountRetrievalService.getMediaAuthor(report.getType(),report.getMediaId());
         List<AccountRes>involved = new ArrayList<>();
         logger.info("USERS INVOLVED: "+reported.getUsername()+" AND "+reporter.getUsername());
-        involved.add(accountService.generateAccountResponse(reporter));
-        involved.add(accountService.generateAccountResponse(reported));
+        involved.add(accountRetrievalService.generateAccountResponse(reporter));
+        involved.add(accountRetrievalService.generateAccountResponse(reported));
         return involved;
     }
 

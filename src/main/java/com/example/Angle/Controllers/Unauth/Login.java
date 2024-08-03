@@ -3,19 +3,17 @@ package com.example.Angle.Controllers.Unauth;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Exceptions.TokenExpiredException;
-import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.AuthReq;
 import com.example.Angle.Config.Models.AuthRes;
 import com.example.Angle.Config.Models.PasswordRestoreRequest;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
+import com.example.Angle.Config.SecServices.Account.UserAccountService;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Services.Email.MaintenanceMailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
-import org.apache.coyote.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +44,10 @@ public class Login {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    AccountService accountService;
+    UserAccountService userAccountService;
+
+    @Autowired
+    AccountRetrievalService accountRetrievalService;
 
     @Autowired
     MaintenanceMailsService maintenanceMailsService;
@@ -66,7 +67,7 @@ public class Login {
         try {
             if (jwtService.validatePasswordRecoveryToken(token, request.getRemoteAddr())) {
                 String username = jwtService.extractUsername(token);
-                accountService.changeUserPassword(username, passwordRequest.getNewPassword());
+                userAccountService.changeUserPassword(username, passwordRequest.getNewPassword());
                 maintenanceMailsService.passwordChangeMail(username);
                 jwtService.invalidateToken(token);
                 return ResponseEntity.ok(new SimpleResponse("Password has been changed! You can now sign in!"));
@@ -81,14 +82,14 @@ public class Login {
     public AuthRes login(@RequestBody AuthReq authReq,
                          HttpServletRequest request) throws IOException, MediaNotFoundException {
         String userIP = request.getRemoteAddr();
-        if(!accountService.emailExists(authReq.getEmail())){
+        if(!accountRetrievalService.emailExists(authReq.getEmail())){
             throw new BadCredentialsException("Incorrect username or password!");
         }
-        if(!accountService.isActive(authReq.getEmail())){
+        if(!accountRetrievalService.isActive(authReq.getEmail())){
             throw new BadRequestException("Account banned!");
         }
         try {
-            accountService.checkEmailConfirmation(authReq.getEmail());
+            userAccountService.checkEmailConfirmation(authReq.getEmail());
         } catch (BadRequestException e) {
             maintenanceMailsService.confirmationEmail(authReq.getEmail());
             throw new BadRequestException(e.getMessage());

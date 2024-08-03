@@ -2,7 +2,7 @@ package com.example.Angle.Services.Comments;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Comment;
 import com.example.Angle.Repositories.CommentRepository;
 import com.example.Angle.Services.Comments.Interfaces.CommentManagement;
@@ -22,16 +22,16 @@ public class CommentManagementService implements CommentManagement {
     private final Logger log = LogManager.getLogger(CommentManagementService.class);
     private final CommentRepository commentRepository;
 
-    private final AccountService accountService;
+    private final AccountRetrievalService accountRetrievalService;
 
     private final CommentRetrievalService commentRetrievalServiceImpl;
 
     @Autowired
     public CommentManagementService(CommentRepository commentRepository,
-                                    AccountService accountService,
+                                    AccountRetrievalService accountRetrievalService,
                                     CommentRetrievalService commentRetrievalService){
         this.commentRepository = commentRepository;
-        this.accountService = accountService;
+        this.accountRetrievalService = accountRetrievalService;
         this.commentRetrievalServiceImpl = commentRetrievalService;
     }
     @Override
@@ -47,9 +47,9 @@ public class CommentManagementService implements CommentManagement {
 
     @Override
     public void removeComment(String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
-        Account currentAccount = accountService.getCurrentUser();
+        Account currentAccount = accountRetrievalService.getCurrentUser();
         Comment toDelete = commentRetrievalServiceImpl.getComment(id);
-        if(currentAccount.getId().equals(toDelete.getAuthorId()) || accountService.isAdmin()){
+        if(currentAccount.getId().equals(toDelete.getAuthorId()) || accountRetrievalService.isAdmin()){
             this.commentRepository.delete(toDelete);
             log.info("Requested comment ["+id+"] has been deleted");
         }else{

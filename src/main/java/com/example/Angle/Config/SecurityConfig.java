@@ -3,7 +3,7 @@ package com.example.Angle.Config;
 
 import com.example.Angle.Config.Filters.JwtAuthFilter;
 import com.example.Angle.Config.Filters.RequestsLogger;
-import com.example.Angle.Config.SecServices.EnvironmentVariables;
+import com.example.Angle.Config.Models.EnvironmentVariables;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Config.SecServices.MyUserDetailsService;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +30,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity

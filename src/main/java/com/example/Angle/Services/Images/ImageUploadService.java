@@ -1,7 +1,6 @@
 package com.example.Angle.Services.Images;
 
 
-import com.example.Angle.Config.SecServices.EnvironmentVariables;
 import com.example.Angle.Services.Images.Interfaces.ImagesUploadInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

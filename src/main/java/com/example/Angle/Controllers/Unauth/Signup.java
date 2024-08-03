@@ -8,7 +8,8 @@ import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecRepositories.UserRoleRepository;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountAdminService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Services.Email.MaintenanceMailsService;
 import org.apache.coyote.BadRequestException;
@@ -33,7 +34,10 @@ public class Signup {
     PasswordEncoder passwordEncoder;
 
     @Autowired
-    AccountService accountService;
+    AccountRetrievalService accountRetrievalService;
+
+    @Autowired
+    AccountAdminService accountAdminService;
 
     @Autowired
     UserRoleRepository userRoleRepository;
@@ -47,10 +51,10 @@ public class Signup {
 
     @RequestMapping(value = "/confirmAccount",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>confirmAccount(@RequestParam String token) throws MediaNotFoundException, BadRequestException {
-        Account account = accountService.getUserByUsername(jwtService.extractUsername(token));
+        Account account = accountRetrievalService.getUserByUsername(jwtService.extractUsername(token));
         if(jwtService.validateEmailConfirmationToken(token)){
             account.setConfirmed(true);
-            accountService.addUser(account);
+            accountAdminService.addUser(account);
             return ResponseEntity.ok(new SimpleResponse("Email has been confirmed! You're able to login now."));
         }
         maintenanceMailsService.confirmationEmail(account.getEmail());
@@ -59,7 +63,7 @@ public class Signup {
 
     @RequestMapping(value = "/checkUsername",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>checkUsername(@RequestBody String username) throws UsernameExistsException {
-        if(accountService.usernameExists(username)){
+        if(accountRetrievalService.usernameExists(username)){
             System.out.println("Username exists!");
             throw new UsernameExistsException();
         }else{
@@ -70,7 +74,7 @@ public class Signup {
 
     @RequestMapping(value = "/checkEmail",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>checkEmail(@RequestBody String email) throws EmailExistsException {
-        if(accountService.emailExists(email)){
+        if(accountRetrievalService.emailExists(email)){
             throw new EmailExistsException();
         }else{
             return ResponseEntity.ok(new SimpleResponse("Email not found!"));
@@ -90,7 +94,7 @@ public class Signup {
         }
         account.setConfirmed(false);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
-        accountService.addUser(account);
+        accountAdminService.addUser(account);
         maintenanceMailsService.confirmationEmail(account.getEmail());
         return ResponseEntity.ok(new SimpleResponse("In order to login you need to confirm your email. Check your mailbox"));
     }

@@ -1,4 +1,4 @@
-package com.example.Angle.Config.SecServices;
+package com.example.Angle.Config.Models;
 
 
 import lombok.AllArgsConstructor;

@@ -6,7 +6,7 @@ import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
-import com.example.Angle.Config.SecServices.EnvironmentVariables;
+import com.example.Angle.Config.Models.EnvironmentVariables;
 import com.example.Angle.Models.Tag;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;

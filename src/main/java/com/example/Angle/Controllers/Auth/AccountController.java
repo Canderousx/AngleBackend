@@ -5,7 +5,8 @@ import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountAdminService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Services.Images.ImageConverterService;
 import com.example.Angle.Services.Images.ImageSaveService;
@@ -29,7 +30,9 @@ import java.io.IOException;
 public class AccountController {
 
     private final JwtService jwtService;
-    private final AccountService accountService;
+    private final AccountAdminService accountAdminService;
+
+    private final AccountRetrievalService accountRetrievalService;
     private final ImageUploadService imageUploadService;
     private final ImageSaveService imageSaveService;
 
@@ -40,26 +43,29 @@ public class AccountController {
 
     @Autowired
     public AccountController(JwtService jwtService,
-                             AccountService accountService,
+                             AccountAdminService accountAdminService,
                              ImageUploadService imageUploadService,
                              ImageSaveService imageSaveService,
-                             ImageConverterService imageConverterService){
+                             ImageConverterService imageConverterService,
+                             AccountRetrievalService accountRetrievalService){
         this.jwtService = jwtService;
-        this.accountService = accountService;
+        this.accountAdminService = accountAdminService;
         this.imageUploadService = imageUploadService;
         this.imageSaveService = imageSaveService;
         this.imageConverterService = imageConverterService;
+        this.accountRetrievalService = accountRetrievalService;
+
     }
 
     @RequestMapping(value = "/isAdmin",method = RequestMethod.GET)
     public boolean isAdmin() throws BadRequestException {
-        return accountService.isAdmin();
+        return accountRetrievalService.isAdmin();
     }
 
     @RequestMapping(value = "/subscribe",method = RequestMethod.GET)
     public ResponseEntity<SimpleResponse>subscribe(@RequestParam String id) throws BadRequestException, MediaNotFoundException {
-        Account user = accountService.getCurrentUser();
-        Account channel = accountService.getUser(id);
+        Account user = accountRetrievalService.getCurrentUser();
+        Account channel = accountRetrievalService.getUser(id);
         if(user == null || channel == null){
             throw new UsernameNotFoundException("Account or channel is null!");
         }
@@ -67,16 +73,16 @@ public class AccountController {
             return ResponseEntity.ok(new SimpleResponse("Already subscribed!"));
         }
         user.getSubscribedIds().add(id);
-        accountService.addUser(user);
+        accountAdminService.addUser(user);
         channel.getSubscribers().add(user.getId());
-        accountService.addUser(channel);
+        accountAdminService.addUser(channel);
         return ResponseEntity.ok(new SimpleResponse("Subscription success"));
     }
 
     @RequestMapping(value = "/unsubscribe",method = RequestMethod.GET)
     public ResponseEntity<SimpleResponse>unsubscribe(@RequestParam String id) throws BadRequestException, MediaNotFoundException {
-        Account user = accountService.getCurrentUser();
-        Account channel = accountService.getUser(id);
+        Account user = accountRetrievalService.getCurrentUser();
+        Account channel = accountRetrievalService.getUser(id);
         if(user == null || channel == null){
             throw new UsernameNotFoundException("Account or channel is null!");
         }
@@ -84,26 +90,26 @@ public class AccountController {
             return ResponseEntity.ok(new SimpleResponse("Not a subscriber already!"));
         }
         user.getSubscribedIds().remove(id);
-        accountService.addUser(user);
+        accountAdminService.addUser(user);
         channel.getSubscribers().remove(user.getId());
-        accountService.addUser(channel);
+        accountAdminService.addUser(channel);
         return ResponseEntity.ok(new SimpleResponse("Unsubscribed successfully"));
     }
 
     @RequestMapping(value = "/isSubscriber",method = RequestMethod.GET)
     public boolean isSubscriber(@RequestParam String id) throws BadRequestException {
-        Account user = accountService.getCurrentUser();
+        Account user = accountRetrievalService.getCurrentUser();
         return user.getSubscribedIds().contains(id);
     }
 
     @RequestMapping(value = "/getMyId",method = RequestMethod.GET)
     public ResponseEntity<SimpleResponse> getUserId() throws BadRequestException {
-        return ResponseEntity.ok(new SimpleResponse(accountService.getCurrentUser().getId()));
+        return ResponseEntity.ok(new SimpleResponse(accountRetrievalService.getCurrentUser().getId()));
     }
 
     @RequestMapping(value = "/getCurrentUser",method = RequestMethod.GET)
     public AccountRes getCurrentUser() throws IOException, ClassNotFoundException {
-        return accountService.generateAccountResponse(accountService.getCurrentUser().getId());
+        return accountRetrievalService.generateAccountResponse(accountRetrievalService.getCurrentUser().getId());
     }
 
     @RequestMapping(value = "/changeAvatar",method = RequestMethod.POST)
@@ -112,9 +118,9 @@ public class AccountController {
         if(!imageUploadService.checkExtension(avatar)){
             throw new InvalidFileNameException("","File extension not supported!");
         }
-        Account account = accountService.getCurrentUser();
+        Account account = accountRetrievalService.getCurrentUser();
         account.setAvatar(imageSaveService.saveUserAvatar(imageConverterService.convertAvatarToBase64(avatar), id));
-        accountService.addUser(account);
+        accountAdminService.addUser(account);
         return ResponseEntity.ok(new SimpleResponse("Avatar has been changed successfully"));
     }
 

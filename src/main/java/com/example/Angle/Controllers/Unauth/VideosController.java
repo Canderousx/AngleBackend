@@ -4,7 +4,7 @@ package com.example.Angle.Controllers.Unauth;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Comment;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
@@ -44,7 +44,7 @@ public class VideosController {
     CommentRetrievalService commentRetrievalService;
 
     @Autowired
-    AccountService accountService;
+    AccountRetrievalService accountRetrievalService;
 
 
     @RequestMapping(value = "/registerView",method = RequestMethod.PATCH)
@@ -88,7 +88,7 @@ public class VideosController {
 
     @RequestMapping(value = "/getUserById",method = RequestMethod.GET)
     public AccountRes getUserById(@RequestParam String id) throws IOException, ClassNotFoundException {
-        return accountService.generateAccountResponse(id);
+        return accountRetrievalService.generateAccountResponse(id);
     }
 
     @RequestMapping(value = "/getVideo",method = RequestMethod.GET)
@@ -114,12 +114,12 @@ public class VideosController {
 
     @RequestMapping(value = "/getAccount",method = RequestMethod.GET)
     public AccountRes getAccount(@RequestParam String id) throws IOException, ClassNotFoundException {
-        return accountService.generateAccountResponse(id);
+        return accountRetrievalService.generateAccountResponse(id);
     }
 
     @RequestMapping(value = "/getUserAvatar", method = RequestMethod.GET)
     public Thumbnail getUserAvatar(@RequestParam String id) throws IOException, ClassNotFoundException {
-        return new Thumbnail(accountService.generateAccountResponse(id).getAvatar());
+        return new Thumbnail(accountRetrievalService.generateAccountResponse(id).getAvatar());
     }
 
 

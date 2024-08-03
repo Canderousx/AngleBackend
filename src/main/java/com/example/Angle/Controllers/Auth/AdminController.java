@@ -3,7 +3,7 @@ package com.example.Angle.Controllers.Auth;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Responses.SimpleResponse;
-import com.example.Angle.Config.SecServices.AccountService;
+import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Models.ReportSolutions;
 import com.example.Angle.Services.Comments.CommentModerationService;
 import com.example.Angle.Services.Reports.ReportModerationService;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 public class AdminController {
-    private final AccountService accountService;
+    private final AccountAdminService accountAdminService;
 
     private final ReportModerationService reportModerationService;
 
@@ -30,12 +30,12 @@ public class AdminController {
 
 
     @Autowired
-    public AdminController(AccountService accountService,
+    public AdminController(AccountAdminService accountAdminService,
                            ReportModerationService reportModerationService,
                            CommentModerationService commentModerationService,
                            VideoModerationService videoModerationService){
         this.videoModerationService = videoModerationService;
-        this.accountService = accountService;
+        this.accountAdminService = accountAdminService;
         this.reportModerationService = reportModerationService;
         this.commentModerationService = commentModerationService;
     }
@@ -44,7 +44,7 @@ public class AdminController {
     public ResponseEntity<SimpleResponse> banAccount(@RequestBody String reason,
                                                      @RequestParam String accountId,
                                                      @RequestParam String reportId) throws MediaNotFoundException, BadRequestException {
-        this.accountService.banAccount(accountId);
+        this.accountAdminService.banAccount(accountId);
         this.reportModerationService.solveReport(ReportSolutions.ACCOUNT_BANNED,reason,reportId);
         return ResponseEntity.ok(new SimpleResponse("Report has been solved! Good work!"));
     }
