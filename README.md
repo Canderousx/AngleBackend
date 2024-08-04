@@ -65,7 +65,7 @@ After that the app should start working properly.
 
 ## Running the app
 
-To start the app, you need to run *AngleApplication.java* file in your IDE.
+To start the app, you need to run *AngleApplication.java* file in your IDE. Make sure your MySQL server is up and running.
 
 
 
