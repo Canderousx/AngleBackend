@@ -1,4 +1,4 @@
-package com.example.Angle.Controllers.Auth;
+package com.example.Angle.Controllers;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Responses.SimpleResponse;
@@ -19,19 +19,19 @@ import java.io.IOException;
 import java.util.*;
 
 @RestController
-@RequestMapping(value = "/auth/comments")
+@RequestMapping(value = "/comments")
 @CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
-public class CommentsController {
+public class CommentController {
 
-    private final Logger logger = LogManager.getLogger(CommentsController.class);
+    private final Logger logger = LogManager.getLogger(CommentController.class);
 
     private final CommentRetrievalService commentRetrievalService;
 
     private final CommentManagementService commentManagementService;
 
     @Autowired
-    public CommentsController(CommentRetrievalService commentRetrievalService,
-                              CommentManagementService commentManagementService){
+    public CommentController(CommentRetrievalService commentRetrievalService,
+                             CommentManagementService commentManagementService){
         this.commentRetrievalService = commentRetrievalService;
         this.commentManagementService = commentManagementService;
     }

@@ -1,4 +1,4 @@
-package com.example.Angle.Controllers.Auth;
+package com.example.Angle.Controllers;
 
 
 import com.example.Angle.Config.Exceptions.FileStoreException;
@@ -29,7 +29,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/auth/upload")
+@RequestMapping("/upload")
 @CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
 public class UploadController {
 

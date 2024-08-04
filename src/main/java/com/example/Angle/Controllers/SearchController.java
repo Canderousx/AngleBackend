@@ -1,8 +1,7 @@
-package com.example.Angle.Controllers.Unauth;
+package com.example.Angle.Controllers;
 
 
 import com.example.Angle.Models.Video;
-import com.example.Angle.Services.Videos.VideoRetrievalService;
 import com.example.Angle.Services.Videos.VideoSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

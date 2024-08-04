@@ -48,7 +48,7 @@ public class RolesInit {
 
 
 
-    public void initalizeDefaultAdminAccount(){
+    private void initalizeDefaultAdminAccount(){
         String defaultPassword = UUID.randomUUID().toString();
         Account account = accountRepository.findByUsername("Admin").orElse(null);
         if(account == null){
