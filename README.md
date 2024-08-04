@@ -40,7 +40,7 @@ where paths, secret keys and other vulnerable data are safe to store.
 List of required environments variables: 
 
 
-| *Variable name* | *Content*                                                                                 |
+| *Variable name* | *Value*                                                                                   |
 | --------------- |-------------------------------------------------------------------------------------------|
  | ANGLE_DB_USER  | *username to your MySQL database*                                                         |
 | ANGLE_DB_PASSWORD| *password to your MySQL database*                                                         |
@@ -54,8 +54,8 @@ List of required environments variables:
 | FFMPEG_PATH| *An absolute path to a 'ffmpeg.exe' file*                                                 |
 | FFMPEG_TEMP_FOLDER| *An absolute path to a folder where FFMpeg will store its temp files*                     |
 |FFMPEG_TEMP_THUMBNAILS_PATH| *An absolute path to a folder where FFMpeg will store its temp thumbnails files*          |
-| HLS_OUTPUT_PATH| *An absolute path to a folder where FFMpeg will store hls files*  |
-|JTOKEN_KEY| *Your secret key for JSON WEB TOKENS*|
+| HLS_OUTPUT_PATH| *An absolute path to a folder where FFMpeg will store hls files*                          |
+|JTOKEN_KEY| *Your secret key for JSON WEB TOKENS*                                                     |
 
 Make sure that media files are stored within *resources* folder, or you'll have to change *spring.resources.static-locations* in application.properties file.
 
