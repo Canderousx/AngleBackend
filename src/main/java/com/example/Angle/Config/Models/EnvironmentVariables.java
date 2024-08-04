@@ -30,8 +30,6 @@ public class EnvironmentVariables {
 
     private String rawFilesPath;
 
-    private String hlsFilesPath;
-
     private String frontUrl;
 
 
