@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class AngleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AngleApplication.class, args);
+		SpringApplication.run(AngleApplication.class,args);
 	}
 
 }
