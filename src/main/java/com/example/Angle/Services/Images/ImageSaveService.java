@@ -41,7 +41,7 @@ public class ImageSaveService implements ImagesSaveInterface {
         if(folder.mkdir()){
             logger.info("Created folder for {"+videoId+"} thumbnails");
         }
-        String filename = folder.getPath()+"\\"+videoId+".tb";
+        String filename = folder.getPath()+"/"+videoId+".tb";
         this.saveImage(filename,base64Content);
         return filename;
     }
