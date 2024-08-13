@@ -3,7 +3,7 @@
 This project has been created by Maciej Miroński (Canderousx).
 It's a backend application for YouTube-like website called *Angle*.
 
-This version has been adapted for deployment on servers running Ubuntu. The use of Docker is recommended.
+This version is the latest one and has been adapted for deployment on servers running Ubuntu. The use of Docker is recommended.
 
 ## Getting Started
 
