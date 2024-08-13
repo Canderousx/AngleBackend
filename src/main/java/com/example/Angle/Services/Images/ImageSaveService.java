@@ -37,7 +37,7 @@ public class ImageSaveService implements ImagesSaveInterface {
 
     @Override
     public String saveVideoThumbnail(String base64Content, String videoId) throws IOException {
-        File folder = new File(environmentVariables.getThumbnailsPath()+"\\"+videoId);
+        File folder = new File(environmentVariables.getThumbnailsPath()+"/"+videoId);
         if(folder.mkdir()){
             logger.info("Created folder for {"+videoId+"} thumbnails");
         }
@@ -48,11 +48,11 @@ public class ImageSaveService implements ImagesSaveInterface {
 
     @Override
     public String saveUserAvatar(String base64Content, String userId) throws IOException {
-        File folder = new File(environmentVariables.getAvatarsPath()+"\\"+userId);
+        File folder = new File(environmentVariables.getAvatarsPath()+"/"+userId);
         if(folder.mkdir()){
             logger.info("Created folder for {"+userId+"} avatars");
         }
-        String filename = folder.getPath()+"\\"+userId+".at";
+        String filename = folder.getPath()+"/"+userId+".at";
         this.saveImage(filename,base64Content);
         return filename;
     }

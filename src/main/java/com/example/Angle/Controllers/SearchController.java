@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/unAuth/search")
-@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200","http://142.93.104.248"})
 public class SearchController {
 
 

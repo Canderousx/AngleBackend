@@ -61,5 +61,7 @@ public class Video {
     @Column(name = "isbanned")
     private boolean isBanned = false;
 
+    private boolean processing = false;
+
 
 }

@@ -73,12 +73,12 @@ public class FFMpegDataRetrievalService implements FFMpegDataRetrievalInterface 
 
 
         List<String> command = Arrays.asList(
-                "C:\\ffmpeg\\ffmpeg\\bin\\ffmpeg.exe", "-i", rawPath,
+                environmentVariables.getFfmpegPath(), "-i", rawPath,
                 "-vf", "fps=" + (videoLength < 2 ? "1" : "1/2") + ",scale=320:-1",
                 "-vframes", String.valueOf(framesNumber),
                 "-compression_level", "6", "-preset", "photo",
                 "-f", "image2",
-                environmentVariables.getFfmpegTempThumbnailsPath()
+                environmentVariables.getFfmpegTempThumbnailsPath()+"/thumbnail%03d.png"
         );
 
 

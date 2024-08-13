@@ -30,7 +30,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping(value = "")
-@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200","http://142.93.104.248"})
 public class VideoController {
 
     private final Logger logger = LogManager.getLogger(VideoController.class);

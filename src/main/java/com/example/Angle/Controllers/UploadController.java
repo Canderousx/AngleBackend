@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/upload")
-@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200"})
+@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200","http://142.93.104.248"})
 public class UploadController {
 
     private final FileSaveService fileSaveService;
@@ -80,8 +80,9 @@ public class UploadController {
         video.setRawPath(this.fileSaveService.saveRawFile(file));
         video.setDatePublished(new Date());
         video.setAuthorId(account.getId());
+        video.setProcessing(true);
         videoRepository.save(video);
-        video.setHlsPath(environmentVariables.getHlsOutputPath()+"\\"+video.getId()+"\\"+video.getId()+"_playlist.m3u8");
+        video.setHlsPath(environmentVariables.getHlsOutputPath()+"/"+video.getId()+"/"+video.getId()+"_playlist.m3u8");
         videoRepository.save(video);
         try {
             CompletableFuture<Void> future = ffMpegConverterService.convertToHls(video.getRawPath(), video.getId());
@@ -89,6 +90,8 @@ public class UploadController {
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(new SimpleResponse("Unable to process the media!"));
         }
+        video.setProcessing(false);
+        videoRepository.save(video);
         return ResponseEntity.ok(new SimpleResponse(video.getId().toString()));
     }
 

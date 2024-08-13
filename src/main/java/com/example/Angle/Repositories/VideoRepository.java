@@ -44,7 +44,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     List<Video>findRandom(@Param("videoIds")List<String> videoId,@Param ("currentVideoId") String currentId, @Param("limit")int howMany);
 
 
-    @Query(value = "SELECT * FROM video v WHERE v.isbanned = false ORDER BY views DESC LIMIT 4",nativeQuery = true)
+    @Query(value = "SELECT * FROM video v WHERE v.isbanned = false AND v.thumbnail IS NOT NULL AND v.name IS NOT NULL ORDER BY views DESC LIMIT 4",nativeQuery = true)
     List<Video>findMostPopular();
 
 

@@ -39,10 +39,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     private final Logger logger = LogManager.getLogger(SecurityConfig.class);
 
 
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200","http://192.168.100.36:4200"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200","http://192.168.100.36:4200","http://142.93.104.248"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PATCH"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(Arrays.asList("","*"));
@@ -54,8 +55,8 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/media/**")
-                .addResourceLocations("file:E:/IT/Angle/BACKEND/Angle/src/main/resources/media/");
+        registry.addResourceHandler("/resources/media/**")
+                .addResourceLocations("file:/app/resources/media/");
     }
 
 
@@ -67,7 +68,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/unAuth/**","/media/**").permitAll()
+                        req.requestMatchers("/unAuth/**","/resources/media/**").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
