@@ -49,8 +49,8 @@ public class AccountRetrievalService implements AccountRetrievalServiceInterface
     }
 
     @Override
-    public boolean isActive(String accountId) {
-        return accountRepository.isActive(accountId);
+    public boolean isActive(String email) {
+        return accountRepository.isActive(email);
     }
 
     @Override
@@ -70,8 +70,9 @@ public class AccountRetrievalService implements AccountRetrievalServiceInterface
     public AccountRes generateAccountResponse(String accountId) throws IOException, ClassNotFoundException {
         Account account = accountRepository.findById(accountId).orElse(null);
         if(account == null){
-            throw new UsernameNotFoundException("Account doesn't exists!");
-        };
+            log.info("Account doesn't exist!");
+            throw new UsernameNotFoundException("Account doesn't exist!");
+        }
         return AccountRes
                 .builder()
                 .id(account.getId())

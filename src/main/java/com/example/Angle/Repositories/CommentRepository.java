@@ -19,7 +19,7 @@ import java.util.Optional;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, String> {
 
-    Optional<Comment>findByAuthorId(String authorId);
+    List<Comment>findByAuthorId(String authorId);
 
     Page<Comment> findByVideoId(String videoId, Pageable pageable);
 

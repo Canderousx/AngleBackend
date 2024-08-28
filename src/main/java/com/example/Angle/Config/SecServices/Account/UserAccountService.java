@@ -34,7 +34,7 @@ public class UserAccountService implements UserAccountServiceInterface {
     }
 
     @Override
-    public void changeUserPassword(String username, String newPassword) throws MediaNotFoundException {
+    public void changeUserPassword(String username, String newPassword){
         Account toChange = accountRetrievalService.getUserByUsername(username);
         toChange.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(toChange);

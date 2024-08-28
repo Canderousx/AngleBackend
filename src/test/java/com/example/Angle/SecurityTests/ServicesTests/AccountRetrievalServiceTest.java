@@ -1,0 +1,188 @@
+package com.example.Angle.SecurityTests.ServicesTests;
+
+
+import com.example.Angle.Config.Models.Account;
+import com.example.Angle.Config.Models.AccountRes;
+import com.example.Angle.Config.Models.UserRole;
+import com.example.Angle.Config.SecRepositories.AccountRepository;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
+import com.example.Angle.Models.Thumbnail;
+import com.example.Angle.Services.Images.ImageRetrievalService;
+import org.apache.coyote.BadRequestException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class AccountRetrievalServiceTest {
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @Mock
+    private ImageRetrievalService imageRetrievalService;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
+
+
+    @InjectMocks
+    private AccountRetrievalService accountRetrievalService;
+
+
+    private Account account;
+
+
+    void simulateLoggedInUser(){
+        UserDetails userDetails = new User(account.getUsername(), account.getPassword(), Collections.emptyList());
+        when(authentication.getName()).thenReturn(userDetails.getUsername());
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+    }
+
+
+    @BeforeEach
+    void setUp(){
+        //test account
+        account = new Account();
+        account.setId("ID");
+        account.setUsername("Test");
+        account.setEmail("Test@Test.com");
+        account.setPassword("testttest");
+        Set<UserRole> roles = new HashSet<>();
+        account.setRoles(roles);
+
+    }
+
+    @Test
+    void usernameExistsTest_Exists(){
+        String username = "existingUser";
+        when(accountRepository.findByUsername(username)).thenReturn(Optional.of(this.account));
+        boolean result = accountRetrievalService.usernameExists(username);
+        assertTrue(result);
+        verify(accountRepository,times(1)).findByUsername(username);
+    }
+
+    @Test
+    void usernameExistsTest_notExist(){
+        String username = "xyz";
+        when(accountRepository.findByUsername(username)).thenReturn(Optional.empty());
+        boolean result = accountRetrievalService.usernameExists(username);
+        assertFalse(result);
+        verify(accountRepository,times(1)).findByUsername(username);
+    }
+
+    @Test
+    void emailExistsTest_Exists(){
+        String email = "existingUser";
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(this.account));
+        boolean result = accountRetrievalService.emailExists(email);
+        assertTrue(result);
+        verify(accountRepository,times(1)).findByEmail(email);
+    }
+
+    @Test
+    void emailExistsTest_notExist(){
+        String email = "xyz";
+        when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
+        boolean result = accountRetrievalService.emailExists(email);
+        assertFalse(result);
+        verify(accountRepository,times(1)).findByEmail(email);
+    }
+
+    @Test
+    void isActiveTest_Active(){
+        when(accountRepository.isActive(account.getEmail())).thenReturn(true);
+        boolean result = accountRetrievalService.isActive(account.getEmail());
+        assertTrue(result);
+        verify(accountRepository,times(1)).isActive(account.getEmail());
+    }
+
+    @Test
+    void isActiveTest_NonActive(){
+        when(accountRepository.isActive(account.getEmail())).thenReturn(false);
+        boolean result = accountRetrievalService.isActive(account.getEmail());
+        assertFalse(result);
+        verify(accountRepository,times(1)).isActive(account.getEmail());
+    }
+
+
+    @Test
+    void isAdmin_Admin() throws BadRequestException {
+        UserRole userRole = new UserRole();
+        userRole.setName("ROLE_ADMIN");
+        account.getRoles().add(userRole);
+        simulateLoggedInUser();
+        when(accountRepository.findByUsername(account.getUsername())).thenReturn(Optional.of(account));
+        boolean result = accountRetrievalService.isAdmin();
+        assertTrue(result);
+        verify(accountRepository, times(1)).findByUsername(account.getUsername());
+
+    }
+
+    @Test
+    void isAdmin_NotAdmin() throws BadRequestException {
+        UserRole userRole = new UserRole();
+        userRole.setName("ROLE_USER");
+        account.getRoles().add(userRole);
+        simulateLoggedInUser();
+        when(accountRepository.findByUsername(account.getUsername())).thenReturn(Optional.of(account));
+        boolean result = accountRetrievalService.isAdmin();
+        assertFalse(result);
+        verify(accountRepository, times(1)).findByUsername(account.getUsername());
+
+    }
+
+    @Test
+    void generateAccountResponseTest_AccountExists() throws IOException, ClassNotFoundException {
+        when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
+        when(imageRetrievalService.getImage(account.getAvatar())).thenReturn(new Thumbnail());
+
+        AccountRes response = accountRetrievalService.generateAccountResponse(account.getId());
+        assertEquals(account.getId(),response.getId());
+        assertEquals(account.getEmail(),response.getEmail());
+        assertEquals(account.getAvatar(),response.getAvatar());
+        assertEquals(account.getSubscribers().size(),response.getSubscribers());
+
+        verify(accountRepository, times(1)).findById(account.getId());
+        verify(imageRetrievalService, times(1)).getImage(account.getAvatar());
+    }
+
+    @Test
+    void generateAccountResponseTest_AccountNotExist(){
+        when(accountRepository.findById(account.getId())).thenReturn(Optional.empty());
+        assertThrows(UsernameNotFoundException.class,() ->{
+            accountRetrievalService.generateAccountResponse(account.getId());
+        });
+        verify(accountRepository, times(1)).findById(account.getId());
+    }
+
+
+
+
+
+
+
+
+
+
+}

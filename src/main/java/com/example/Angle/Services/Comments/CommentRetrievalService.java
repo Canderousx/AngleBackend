@@ -42,18 +42,14 @@ public class CommentRetrievalService implements CommentRetrieval {
     }
     @Override
     public Comment getComment(String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
-        Comment comment = commentRepository.findById(id).orElse(null);
-        if(comment == null){
-            log.error("Comment id: {"+id+"} NOT FOUND!");
-            throw new MediaNotFoundException("Requested comment doesn't exist!");
-        }
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new MediaNotFoundException("Requested comment doesn't exist!" ));
         return fillCommentData(comment);
     }
 
     @Override
     public List<Comment> getUserComments(String userId) {
-        Optional<Comment> userComments = this.commentRepository.findByAuthorId(userId);
-        if(userComments.isPresent()){
+        List<Comment> userComments = this.commentRepository.findByAuthorId(userId);
+        if(!userComments.isEmpty()){
             log.info("User ["+userId+"] comments found");
             return new ArrayList<>(userComments.stream().toList());
         }else{

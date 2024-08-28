@@ -19,10 +19,7 @@ public class CommentModerationService implements CommentModeration {
     }
     @Override
     public void banComment(String id) throws MediaNotFoundException {
-        Comment comment = commentRepository.findById(id).orElse(null);
-        if(comment == null){
-            throw new MediaNotFoundException("Comment doesn't exists!");
-        }
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new MediaNotFoundException("Comment doesn't exist"));
         comment.setBanned(true);
         commentRepository.save(comment);
     }
