@@ -69,9 +69,34 @@ After that the app should start working properly.
 
 To start the app, you need to run *AngleApplication.java* file in your IDE. Make sure your MySQL server is up and running.
 
-## Deployment
+# Deployment
+*Ensure Docker is installed on your system.*
 
-*available soon*
+*Make sure you've defined the necessary environment variables in the Dockerfile.*
+
+## Building the Docker Image
+
+1. Open PowerShell and navigate to the project folder where your Dockerfile is located.
+2. To build the Docker image, run the following command:
+
+*docker build -t image_name*
+3. To verify that the image has been created, use the command:
+
+*docker images*
+
+### Saving the Image as a .tar File
+
+To save the Docker image as a .tar file, use the following command:
+
+*docker save -o name_of_file.tar image_name:version*. 
+
+This command will create a .tar file in the current directory.
+
+
+## Preparing for Server Deployment
+
+Once the image is saved, it's ready to be moved to the server. 
+However, to fully deploy the application, you will also need the Docker image for the Angle Frontend and a docker-compose.yml file.
 
 
 
