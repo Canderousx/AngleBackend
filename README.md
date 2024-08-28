@@ -99,6 +99,7 @@ To start the app, you need to run *AngleApplication.java* file in your IDE. Make
 2. To build the Docker image, run the following command:
 
 *docker build -t image_name*
+
 3. To verify that the image has been created, use the command:
 
 *docker images*
