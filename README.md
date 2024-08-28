@@ -70,11 +70,30 @@ After that the app should start working properly.
 To start the app, you need to run *AngleApplication.java* file in your IDE. Make sure your MySQL server is up and running.
 
 # Deployment
+
+## Building the project with Maven
+
+### Using Intellij IDEA
+
+1. Open the project in Intellij IDEA
+2. Open the Maven tab and run *clean* lifecycle
+3. Run *install* lifecycle.
+
+### Using PowerShell
+
+1. Navigate to the project directory. Make sure you're where the pom.xml file is located.
+2. Run clean and package command: *mvn clean package*
+
+
+
+**Ensure that the path to the generated JAR file is correctly specified in your Dockerfile.**
+
+
+## Building the Docker Image
+
 *Ensure Docker is installed on your system.*
 
 *Make sure you've defined the necessary environment variables in the Dockerfile.*
-
-## Building the Docker Image
 
 1. Open PowerShell and navigate to the project folder where your Dockerfile is located.
 2. To build the Docker image, run the following command:
