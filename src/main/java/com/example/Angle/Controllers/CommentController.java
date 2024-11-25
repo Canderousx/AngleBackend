@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -43,13 +44,13 @@ public class CommentController {
 
 
     @RequestMapping(value = "/addComment",method = RequestMethod.POST)
-    public List<Comment> addComment(@RequestBody Comment comment,
+    public Page<Comment> addComment(@RequestBody Comment comment,
                                     HttpServletResponse response) throws IOException, ClassNotFoundException, MediaNotFoundException {
         comment.setDatePublished(new Date());
         commentManagementService.addComment(comment);
         Pageable paginateSettings = PageRequest.of(0,10, Sort.by("datePublished").descending());
-        List<Comment> refreshed = commentRetrievalService.getVideoComments(comment.getVideoId(),paginateSettings);
-        response.setHeader("totalComments",String.valueOf(refreshed.size()));
+        Page<Comment> refreshed = commentRetrievalService.getVideoComments(comment.getVideoId(),paginateSettings);
+        response.setHeader("totalComments",String.valueOf(refreshed.getTotalElements()));
         return refreshed;
     }
 

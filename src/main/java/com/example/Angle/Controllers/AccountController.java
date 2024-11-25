@@ -10,6 +10,7 @@ import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecRepositories.UserRoleRepository;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
+import com.example.Angle.Config.SecServices.Account.Interfaces.AccountRetrievalServiceInterface;
 import com.example.Angle.Config.SecServices.Account.UserAccountService;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Services.Email.MaintenanceMailsService;
@@ -88,7 +89,7 @@ public class AccountController {
 
 
     @RequestMapping(value = "/unAuth/getAccount",method = RequestMethod.GET)
-    public AccountRes getAccount(@RequestParam String id) throws IOException, ClassNotFoundException {
+    public AccountRetrievalServiceInterface.AccountRecord getAccount(@RequestParam String id) throws IOException, ClassNotFoundException {
         return accountRetrievalService.generateAccountResponse(id);
     }
 
@@ -103,7 +104,7 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/getCurrentUser",method = RequestMethod.GET)
-    public AccountRes getCurrentUser() throws IOException, ClassNotFoundException {
+    public AccountRetrievalServiceInterface.AccountRecord getCurrentUser() throws IOException, ClassNotFoundException {
         return accountRetrievalService.generateAccountResponse(accountRetrievalService.getCurrentUser().getId());
     }
 

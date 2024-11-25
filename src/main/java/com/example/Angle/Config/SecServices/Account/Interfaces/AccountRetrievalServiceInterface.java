@@ -1,13 +1,20 @@
 package com.example.Angle.Config.SecServices.Account.Interfaces;
 
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.Models.AccountRes;
 import org.apache.coyote.BadRequestException;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface AccountRetrievalServiceInterface {
+    record AccountRecord(
+            String id,
+            String username,
+            int subscribers,
+            List<String> subscribedIds,
+            String avatar
+
+    ) {};
     boolean usernameExists(String username);
 
     boolean emailExists(String email);
@@ -16,9 +23,9 @@ public interface AccountRetrievalServiceInterface {
 
     boolean isAdmin() throws BadRequestException;
 
-    AccountRes generateAccountResponse(String accountId) throws IOException, ClassNotFoundException;
+    AccountRecord generateAccountResponse(String accountId) throws IOException, ClassNotFoundException;
 
-    AccountRes generateAccountResponse(Account account) throws IOException, ClassNotFoundException;
+    AccountRecord generateAccountResponse(Account account) throws IOException, ClassNotFoundException;
 
     Account getCurrentUser() throws BadRequestException;
 

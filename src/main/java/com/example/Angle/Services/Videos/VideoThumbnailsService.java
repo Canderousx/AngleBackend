@@ -29,7 +29,7 @@ public class VideoThumbnailsService implements VideoThumbnailsInterface {
     @Override
     public void processThumbnail(Video video) throws IOException, ClassNotFoundException, MediaNotFoundException {
         video.setAuthorAvatar(
-                accountRetrievalService.generateAccountResponse(video.getAuthorId()).getAvatar()
+                accountRetrievalService.generateAccountResponse(video.getAuthorId()).avatar()
         );
         video.setThumbnail(
                 imageRetrievalService.getImage(

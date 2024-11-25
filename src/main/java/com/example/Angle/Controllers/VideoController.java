@@ -4,10 +4,10 @@ package com.example.Angle.Controllers;
 import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
+import com.example.Angle.Config.SecServices.Account.Interfaces.AccountRetrievalServiceInterface;
 import com.example.Angle.Models.Comment;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Models.Video;
@@ -19,6 +19,7 @@ import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -124,27 +125,27 @@ public class VideoController {
     }
 
     @RequestMapping(value = "/unAuth/videos/getBySubscribers")
-    public List<Video>getBySubscribers(@RequestParam String page) throws BadRequestException {
+    public Page<Video>getBySubscribers(@RequestParam String page) throws BadRequestException {
         return videoRetrievalService.getRandomBySubscribers(Integer.parseInt(page));
     }
 
     @RequestMapping(value = "/unAuth/videos/getComments",method = RequestMethod.GET)
-    public List<Comment>getComments(@RequestParam String id,
-                                    @RequestParam int page,
-                                    @RequestParam int pageSize,
-                                    HttpServletResponse httpResponse) throws IOException, ClassNotFoundException, MediaNotFoundException {
+    public Page<Comment> getComments(@RequestParam String id,
+                                     @RequestParam int page,
+                                     @RequestParam int pageSize,
+                                     HttpServletResponse httpResponse) throws IOException, ClassNotFoundException, MediaNotFoundException {
         Pageable paginateSettings = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
         httpResponse.setHeader("totalComments", String.valueOf(commentRetrievalService.getTotalCommentsNum(id)));
         return commentRetrievalService.getVideoComments(id,paginateSettings);
     }
 
     @RequestMapping(value = "/unAuth/videos/getAll",method = RequestMethod.GET)
-    public List<Video> getAllVideos(@RequestParam int page) throws IOException, ClassNotFoundException {
+    public Page<Video> getAllVideos(@RequestParam int page) throws IOException, ClassNotFoundException {
         return videoRetrievalService.getAllVideos(page);
     }
 
     @RequestMapping(value = "/unAuth/videos/getUserById",method = RequestMethod.GET)
-    public AccountRes getUserById(@RequestParam String id) throws IOException, ClassNotFoundException {
+    public AccountRetrievalServiceInterface.AccountRecord getUserById(@RequestParam String id) throws IOException, ClassNotFoundException {
         return accountRetrievalService.generateAccountResponse(id);
     }
 
@@ -159,19 +160,19 @@ public class VideoController {
     }
 
     @RequestMapping(value = "/unAuth/videos/getUserVideos",method = RequestMethod.GET)
-    public List<Video> getUserVideos(@RequestParam String id,
+    public Page<Video> getUserVideos(@RequestParam String id,
                                      @RequestParam int page,
                                      @RequestParam int pageSize,
                                      HttpServletResponse response) throws BadRequestException, MediaNotFoundException {
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        int totalVideos = videoRetrievalService.howManyUserVideos(id);
-        response.setHeader("totalVideos",String.valueOf(totalVideos));
-        return videoRetrievalService.getUserVideos(id,pageable);
+        Page<Video> userVideos = videoRetrievalService.getUserVideos(id,pageable);
+        response.setHeader("totalVideos",String.valueOf(userVideos.getTotalElements()));
+        return userVideos;
     }
 
     @RequestMapping(value = "/unAuth/videos/getUserAvatar", method = RequestMethod.GET)
     public Thumbnail getUserAvatar(@RequestParam String id) throws IOException, ClassNotFoundException {
-        return new Thumbnail(accountRetrievalService.generateAccountResponse(id).getAvatar());
+        return new Thumbnail(accountRetrievalService.generateAccountResponse(id).avatar());
     }
 
 

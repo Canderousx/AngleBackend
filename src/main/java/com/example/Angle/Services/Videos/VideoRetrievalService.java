@@ -11,6 +11,7 @@ import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -56,24 +57,24 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    public List<Video> getAllVideos(int page) {
+    public Page<Video> getAllVideos(int page) {
         Pageable paginateSettings = PageRequest.of(page,12, Sort.by("datePublished").descending());
-        List<Video> videos = this.videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalse(paginateSettings).stream().toList();
-        if(!videos.isEmpty()){
-            videoThumbnailsService.processThumbnails(videos);
+        Page<Video> videos = this.videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalse(paginateSettings);
+        if(!videos.getContent().isEmpty()){
+            videoThumbnailsService.processThumbnails(videos.getContent());
         }
         return videos;
     }
 
     @Override
-    public List<Video> getUserVideos(String userId, Pageable pageable) {
-        List<Video>userVideos = this.videoRepository.findByAuthorId(userId,pageable);
+    public Page<Video> getUserVideos(String userId, Pageable pageable) {
+        Page<Video>userVideos = this.videoRepository.findByAuthorId(userId,pageable);
         if(userVideos.isEmpty()){
             log.info("User ["+userId+"] doesn't have any videos.");
             return null;
         }
         log.info("User ["+userId+"] videos found");
-        videoThumbnailsService.processThumbnails(userVideos);
+        videoThumbnailsService.processThumbnails(userVideos.getContent());
         return userVideos;
     }
 
@@ -108,15 +109,15 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    public List<Video> getRandomBySubscribers(int page) throws BadRequestException {
+    public Page<Video> getRandomBySubscribers(int page) throws BadRequestException {
         Account account = accountRetrievalService.getCurrentUser();
         if(account.getSubscribedIds().isEmpty()){
-            return new ArrayList<>();
+            return Page.empty();
         }
         Pageable pageable = PageRequest.of(page,12);
         String[] Strings = account.getSubscribedIds().toArray(new String[0]);
-        List<Video> videos = videoRepository.findFromSubscribers(Strings,pageable).stream().toList();
-        videoThumbnailsService.processThumbnails(videos);
+        Page<Video> videos = videoRepository.findFromSubscribers(Strings,pageable);
+        videoThumbnailsService.processThumbnails(videos.getContent());
         return videos;
     }
 

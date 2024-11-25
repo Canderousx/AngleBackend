@@ -59,14 +59,14 @@ public class CommentRetrievalService implements CommentRetrieval {
     }
 
     @Override
-    public List<Comment> getVideoComments(String videoId, Pageable pageable) throws IOException, ClassNotFoundException, MediaNotFoundException {
+    public Page<Comment> getVideoComments(String videoId, Pageable pageable) throws IOException, ClassNotFoundException, MediaNotFoundException {
         Page<Comment> pageComments = this.commentRepository.findByVideoId(videoId,pageable);
         if(!pageComments.isEmpty()){
             log.info("Video ["+videoId+"] comments found");
-            return fillCommentData(pageComments.stream().toList());
+            return fillCommentData(pageComments);
         }else{
             log.info("Video ["+videoId+"] doesn't have any comments yet");
-            return new ArrayList<>();
+            return Page.empty();
         }
     }
 
@@ -78,12 +78,11 @@ public class CommentRetrievalService implements CommentRetrieval {
     }
 
 
-    private List<Comment>fillCommentData(List<Comment> comments) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        List<Comment>filled = new ArrayList<>();
-        for(Comment comment: comments){
-            filled.add(fillCommentData(comment));
+    private Page<Comment>fillCommentData(Page<Comment> comments) throws IOException, ClassNotFoundException, MediaNotFoundException {
+        for(Comment comment: comments.getContent()){
+            fillCommentData(comment);
         }
-        return filled;
+        return comments;
     }
 
     private Comment fillCommentData(Comment comment) throws IOException, ClassNotFoundException, MediaNotFoundException {

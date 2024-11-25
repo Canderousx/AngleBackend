@@ -2,14 +2,13 @@ package com.example.Angle.SecurityTests.ServicesTests;
 
 
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
+import com.example.Angle.Config.SecServices.Account.Interfaces.AccountRetrievalServiceInterface;
 import com.example.Angle.Models.Thumbnail;
 import com.example.Angle.Services.Images.ImageRetrievalService;
 import org.apache.coyote.BadRequestException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -157,11 +156,10 @@ public class AccountRetrievalServiceTest {
         when(accountRepository.findById(account.getId())).thenReturn(Optional.of(account));
         when(imageRetrievalService.getImage(account.getAvatar())).thenReturn(new Thumbnail());
 
-        AccountRes response = accountRetrievalService.generateAccountResponse(account.getId());
-        assertEquals(account.getId(),response.getId());
-        assertEquals(account.getEmail(),response.getEmail());
-        assertEquals(account.getAvatar(),response.getAvatar());
-        assertEquals(account.getSubscribers().size(),response.getSubscribers());
+        AccountRetrievalServiceInterface.AccountRecord response = accountRetrievalService.generateAccountResponse(account.getId());
+        assertEquals(account.getId(),response.id());
+        assertEquals(account.getAvatar(),response.avatar());
+        assertEquals(account.getSubscribers().size(),response.subscribers());
 
         verify(accountRepository, times(1)).findById(account.getId());
         verify(imageRetrievalService, times(1)).getImage(account.getAvatar());

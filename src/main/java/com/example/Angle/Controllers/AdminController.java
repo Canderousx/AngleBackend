@@ -3,10 +3,10 @@ package com.example.Angle.Controllers;
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
+import com.example.Angle.Config.SecServices.Account.Interfaces.AccountRetrievalServiceInterface;
 import com.example.Angle.Models.DTO.ReportDTO;
 import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportSolutions;
@@ -155,11 +155,11 @@ public class AdminController {
         return myCases;
     }
     @RequestMapping(value = "report/getUsersInvolved",method = RequestMethod.GET)
-    public List<AccountRes>getUsersInvolved(@RequestParam String id) throws IOException, ClassNotFoundException, MediaNotFoundException {
+    public List<AccountRetrievalServiceInterface.AccountRecord>getUsersInvolved(@RequestParam String id) throws IOException, ClassNotFoundException, MediaNotFoundException {
         Report report = reportRetrievalService.getReport(id);
         Account reporter = accountRetrievalService.getUser(report.getReporterId());
         Account reported = accountRetrievalService.getMediaAuthor(report.getType(),report.getMediaId());
-        List<AccountRes>involved = new ArrayList<>();
+        List<AccountRetrievalServiceInterface.AccountRecord>involved = new ArrayList<>();
         logger.info("USERS INVOLVED: "+reported.getUsername()+" AND "+reporter.getUsername());
         involved.add(accountRetrievalService.generateAccountResponse(reporter));
         involved.add(accountRetrievalService.generateAccountResponse(reported));

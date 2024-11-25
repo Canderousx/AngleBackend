@@ -1,4 +1,4 @@
-package com.example.Angle.ServicesTests;
+package com.example.Angle.ServicesTests.Comments;
 
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
@@ -99,16 +99,39 @@ public class CommentRetrievalServiceTest {
         when(accountRetrievalService.getUser(null)).thenReturn(account);
         when(imageRetrievalService.getImage("avatar1.png")).thenReturn(new Thumbnail("xddd"));
 
-        List<Comment> result = commentRetrievalService.getVideoComments(
+        Page<Comment> result = commentRetrievalService.getVideoComments(
                 comment.getVideoId(),
                 pageable
         );
         assertNotNull(result);
-        assertEquals(3,result.size());
-        assertNull(result.get(1).getAuthorId());
-        assertNotNull(result.get(0).getAuthorAvatar());
+        assertEquals(3,result.getContent().size());
+        assertNull(result.getContent().get(1).getAuthorId());
+        assertNotNull(result.getContent().get(0).getAuthorAvatar());
         verify(commentRepository,times(1)).findByVideoId(comment.getVideoId(),pageable);
     }
+
+    @Test
+    void getVideoCommentsTest_NoComments() throws IOException, ClassNotFoundException, MediaNotFoundException {
+        Pageable pageable = PageRequest.of(0,10);
+        Page<Comment> page = new PageImpl<>(new ArrayList<>());
+        Account account = new Account();
+        account.setUsername("User1");
+        account.setId("User1");
+        account.setAvatar("avatar1.png");
+
+        when(commentRepository.findByVideoId(comment.getVideoId(), pageable)).thenReturn(page);
+
+        Page<Comment> result = commentRetrievalService.getVideoComments(
+                comment.getVideoId(),
+                pageable
+        );
+        assertNotNull(result);
+        assertEquals(0,result.getContent().size());
+        verify(commentRepository,times(1)).findByVideoId(comment.getVideoId(),pageable);
+    }
+
+
+
 
 
 

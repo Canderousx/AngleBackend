@@ -1,4 +1,4 @@
-package com.example.Angle.ServicesTests;
+package com.example.Angle.ServicesTests.Comments;
 
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;

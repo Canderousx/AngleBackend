@@ -1,7 +1,6 @@
 package com.example.Angle.Config.SecServices.Account;
 
 import com.example.Angle.Config.Models.Account;
-import com.example.Angle.Config.Models.AccountRes;
 import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
 import com.example.Angle.Config.SecServices.Account.Interfaces.AccountRetrievalServiceInterface;
@@ -66,33 +65,29 @@ public class AccountRetrievalService implements AccountRetrievalServiceInterface
         return false;
     }
 
+    private AccountRecord getAccountRecord(Account account) throws IOException, ClassNotFoundException {
+        List<String> subscribedIds = account.getSubscribedIds();
+        return new AccountRecord(
+                account.getId(),
+                account.getUsername(),
+                subscribedIds.size(),
+                subscribedIds,
+                imageRetrievalService.getImage(account.getAvatar()).getContent()
+        );
+    }
+
     @Override
-    public AccountRes generateAccountResponse(String accountId) throws IOException, ClassNotFoundException {
+    public AccountRecord generateAccountResponse(String accountId) throws IOException, ClassNotFoundException {
         Account account = accountRepository.findById(accountId).orElse(null);
         if(account == null){
             log.info("Account doesn't exist!");
             throw new UsernameNotFoundException("Account doesn't exist!");
         }
-        return AccountRes
-                .builder()
-                .id(account.getId())
-                .email(account.getEmail())
-                .username(account.getUsername())
-                .subscribers(account.getSubscribers().size())
-                .avatar(imageRetrievalService.getImage(account.getAvatar()).getContent())
-                .build();
+        return getAccountRecord(account);
     }
-
     @Override
-    public AccountRes generateAccountResponse(Account account) throws IOException, ClassNotFoundException {
-        return AccountRes
-                .builder()
-                .id(account.getId())
-                .email(account.getEmail())
-                .username(account.getUsername())
-                .subscribers(account.getSubscribers().size())
-                .avatar(imageRetrievalService.getImage(account.getAvatar()).getContent())
-                .build();
+    public AccountRecord generateAccountResponse(Account account) throws IOException, ClassNotFoundException {
+        return getAccountRecord(account);
     }
 
     @Override

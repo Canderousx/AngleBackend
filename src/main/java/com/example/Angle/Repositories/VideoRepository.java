@@ -21,7 +21,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
 
     Optional<Video>findByDatePublished(Date datePublished);
 
-    List<Video> findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalse(Pageable page);
+    Page<Video> findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalse(Pageable page);
 
     @Modifying
     @Transactional
@@ -32,7 +32,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     @Query(value = "SELECT * FROM Video v WHERE FIND_IN_SET(:tag, v.tags) > 0 AND v.thumbnail IS NOT NULL AND v.name IS NOT NULL AND v.isbanned = false", nativeQuery = true)
     Optional<Video>findByTag(String tag);
 
-    List<Video>findByAuthorId(String authorId,Pageable pageable);
+    Page<Video>findByAuthorId(String authorId,Pageable pageable);
 
     List<Video>findByAuthorId(String authorId);
 
