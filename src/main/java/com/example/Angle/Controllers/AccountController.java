@@ -111,12 +111,7 @@ public class AccountController {
     @RequestMapping(value = "/changeAvatar",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>changeAvatar(@RequestParam String id,
                                                       @RequestParam(name = "file") MultipartFile avatar) throws IOException {
-        if(!imageUploadService.checkExtension(avatar)){
-            throw new InvalidFileNameException("","File extension not supported!");
-        }
-        Account account = accountRetrievalService.getCurrentUser();
-        account.setAvatar(imageSaveService.saveUserAvatar(imageConverterService.convertAvatarToBase64(avatar), id));
-        accountAdminService.addUser(account);
+        accountAdminService.changeAvatar(id,avatar);
         return ResponseEntity.ok(new SimpleResponse("Avatar has been changed successfully"));
     }
 
@@ -218,10 +213,8 @@ public class AccountController {
     @RequestMapping(value = "/unAuth/signup/checkUsername",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse>checkUsername(@RequestBody String username) throws UsernameExistsException {
         if(accountRetrievalService.usernameExists(username)){
-            System.out.println("Username exists!");
             throw new UsernameExistsException();
         }else{
-            System.out.println("Username free!");
             return ResponseEntity.ok(new SimpleResponse("Username not found!"));
         }
     }

@@ -20,6 +20,7 @@ import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -109,7 +110,7 @@ public class AdminController {
     }
 
     @RequestMapping(value = "report/getUnresolved",method = RequestMethod.GET)
-    public List<ReportDTO> getUnresolved(@RequestParam int page,
+    public Page<ReportDTO> getUnresolved(@RequestParam int page,
                                          @RequestParam int pageSize,
                                          @RequestParam String sortBy,
                                          @RequestParam String order,
@@ -119,11 +120,11 @@ public class AdminController {
             pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).descending());
         }
         response.setHeader("totalReports",String.valueOf(reportRepository.countUnresolvedReports()));
-        return reportRepository.getUnresolved(pageable).stream().toList();
+        return reportRepository.getUnresolved(pageable);
     }
 
     @RequestMapping(value = "report/getMyCases",method = RequestMethod.GET)
-    public List<ReportDTO>getMyCases(@RequestParam int page,
+    public Page<ReportDTO>getMyCases(@RequestParam int page,
                                      @RequestParam int pageSize,
                                      @RequestParam String sortBy,
                                      @RequestParam String order,
@@ -134,13 +135,13 @@ public class AdminController {
             pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).descending());
         }
         response.setHeader("totalReports",String.valueOf(reportRepository.countMyCases(account.getId())));
-        List<ReportDTO> myCases = reportRepository.getMyCases(account.getId(),pageable).stream().toList();
-        logger.info("USER CASES COUNT: "+myCases.size());
+        Page<ReportDTO> myCases = reportRepository.getMyCases(account.getId(),pageable);
+        logger.info("USER CASES COUNT: "+myCases.getTotalElements());
         return myCases;
     }
 
     @RequestMapping(value = "report/getResolved",method = RequestMethod.GET)
-    public List<ReportDTO>getResolved(@RequestParam int page,
+    public Page<ReportDTO>getResolved(@RequestParam int page,
                                       @RequestParam int pageSize,
                                       @RequestParam String sortBy,
                                       @RequestParam String order,
@@ -150,8 +151,8 @@ public class AdminController {
             pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).descending());
         }
         response.setHeader("totalReports",String.valueOf(reportRepository.countResolved()));
-        List<ReportDTO> myCases = reportRepository.getResolved(pageable).stream().toList();
-        logger.info("USER CASES COUNT: "+myCases.size());
+        Page<ReportDTO> myCases = reportRepository.getResolved(pageable);
+        logger.info("USER CASES COUNT: "+myCases.getTotalElements());
         return myCases;
     }
     @RequestMapping(value = "report/getUsersInvolved",method = RequestMethod.GET)
