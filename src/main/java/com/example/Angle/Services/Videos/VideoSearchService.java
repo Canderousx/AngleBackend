@@ -7,6 +7,7 @@ import com.example.Angle.Services.Videos.Interfaces.VideoSearchInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -49,12 +50,11 @@ public class VideoSearchService implements VideoSearchInterface {
     }
 
     @Override
-    public List<Video> findVideos(String query, int page) {
-        List<Video> found;
+    public Page<Video> findVideos(String query, int page) {
         Pageable pageable = PageRequest.of(page,12);
-        found = videoRepository.findByNameContainingOrTagsNameContaining(query,query,query,pageable).stream().toList();
-        if(!found.isEmpty()){
-            videoThumbnailsService.processThumbnails(found);
+        Page<Video> found = videoRepository.findByNameContainingOrTagsNameContaining(query,query,query,pageable);
+        if(!found.getContent().isEmpty()){
+            videoThumbnailsService.processThumbnails(found.getContent());
         }
         return found;
     }

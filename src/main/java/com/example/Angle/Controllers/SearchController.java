@@ -4,6 +4,7 @@ package com.example.Angle.Controllers;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Services.Videos.VideoSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +19,8 @@ public class SearchController {
     VideoSearchService videoSearchService;
 
     @RequestMapping(value = "",method = RequestMethod.GET)
-    public List<Video>search(@RequestParam String q,
-                             @RequestParam String page){
+    public Page<Video> search(@RequestParam String q,
+                              @RequestParam String page){
         return videoSearchService.findVideos(q,Integer.parseInt(page));
     }
 
