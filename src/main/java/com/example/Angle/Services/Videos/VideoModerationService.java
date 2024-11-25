@@ -2,16 +2,25 @@ package com.example.Angle.Services.Videos;
 
 import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
+import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
+import com.example.Angle.Models.Tag;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.Comments.CommentManagementService;
 import com.example.Angle.Services.Files.FileDeleterService;
+import com.example.Angle.Services.Images.ImageSaveService;
+import com.example.Angle.Services.Tags.TagSaverService;
 import com.example.Angle.Services.Videos.Interfaces.VideoModerationInterface;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Service
@@ -29,17 +38,48 @@ public class VideoModerationService implements VideoModerationInterface {
 
     private final AccountAdminService accountAdminService;
 
+    private final TagSaverService tagSaverService;
+
+    private final ImageSaveService imageSaveService;
+
+
+
     @Autowired
     public VideoModerationService(VideoRetrievalService videoRetrievalService,
                                   VideoRepository videoRepository,
                                   FileDeleterService fileDeleterService,
                                   CommentManagementService commentManagementService,
-                                  AccountAdminService accountAdminService) {
+                                  AccountAdminService accountAdminService,
+                                  TagSaverService tagSaverService,
+                                  ImageSaveService imageSaveService) {
         this.videoRetrievalService = videoRetrievalService;
         this.videoRepository = videoRepository;
         this.fileDeleterService = fileDeleterService;
         this.commentManagementService = commentManagementService;
         this.accountAdminService = accountAdminService;
+        this.tagSaverService = tagSaverService;
+        this.imageSaveService = imageSaveService;
+    }
+
+    @Override
+    public void setMetadata(String id, Video metadata) throws MediaNotFoundException {
+        Video video = videoRepository.findById(id).orElse(null);
+        if(video != null){
+            video.setName(metadata.getName());
+            video.setDescription(metadata.getDescription());
+            video.setTags(tagSaverService.setTags(metadata));
+            try {
+                video.setThumbnail(imageSaveService.saveVideoThumbnail(
+                        metadata.getThumbnail(),
+                        video.getId()
+                ));
+                videoRepository.save(video);
+            } catch (IOException e) {
+                throw new MediaNotFoundException("There was an error during thumbnail processing");
+            }
+
+        }
+        throw new MediaNotFoundException("Requested video not found");
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.example.Angle.Services.Videos.Interfaces;
 
 import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
+import com.example.Angle.Models.Video;
 
 public interface VideoModerationInterface {
 
@@ -20,6 +21,8 @@ public interface VideoModerationInterface {
     boolean dislikeVideo(String videoId) throws MediaNotFoundException;
 
     void likeVideo(String videoId) throws MediaNotFoundException;
+
+    void setMetadata(String id, Video metadata) throws MediaNotFoundException;
 
 
 }
