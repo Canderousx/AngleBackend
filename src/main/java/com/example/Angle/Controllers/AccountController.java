@@ -85,7 +85,7 @@ public class AccountController {
 
     @RequestMapping(value = "/getCurrentUser",method = RequestMethod.GET)
     public AccountRetrievalServiceInterface.AccountRecord getCurrentUser() throws IOException, ClassNotFoundException {
-        return accountRetrievalService.generateAccountResponse(accountRetrievalService.getCurrentUser().getId());
+        return accountRetrievalService.generateAccountResponse(accountRetrievalService.getCurrentUser());
     }
 
     @RequestMapping(value = "/changeAvatar",method = RequestMethod.POST)
