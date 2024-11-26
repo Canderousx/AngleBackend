@@ -1,5 +1,6 @@
 package com.example.Angle.Config.SecServices.Account;
 
+import com.example.Angle.Config.Exceptions.CredentialExistsException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
@@ -38,18 +39,27 @@ public class AccountRetrievalService implements AccountRetrievalServiceInterface
     }
 
     @Override
-    public boolean usernameExists(String username) {
-        return this.accountRepository.findByUsername(username).isPresent();
+    public boolean usernameExists(String username) throws CredentialExistsException {
+        if(this.accountRepository.existsByUsername(username)){
+            throw new CredentialExistsException("Username already exists!");
+        }
+        return false;
     }
 
     @Override
-    public boolean emailExists(String email) {
-        return this.accountRepository.findByEmail(email).isPresent();
+    public boolean emailExists(String email) throws CredentialExistsException {
+        if(this.accountRepository.existsByEmail(email)){
+            throw new CredentialExistsException("Email already exists!");
+        }
+        return false;
     }
 
     @Override
     public boolean isActive(String email) {
-        return accountRepository.isActive(email);
+        if(accountRepository.existsByEmail(email)){
+            return accountRepository.isActive(email);
+        }
+        return false;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.Angle.Config.SecServices.Account.Interfaces;
 
+import com.example.Angle.Config.Exceptions.CredentialExistsException;
 import com.example.Angle.Config.Models.Account;
 import org.apache.coyote.BadRequestException;
 
@@ -15,9 +16,9 @@ public interface AccountRetrievalServiceInterface {
             String avatar
 
     ) {};
-    boolean usernameExists(String username);
+    boolean usernameExists(String username) throws CredentialExistsException;
 
-    boolean emailExists(String email);
+    boolean emailExists(String email) throws CredentialExistsException;
 
     boolean isActive(String accountId);
 

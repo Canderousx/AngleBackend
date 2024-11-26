@@ -1,6 +1,7 @@
 package com.example.Angle.SecurityTests.ServicesTests;
 
 
+import com.example.Angle.Config.Exceptions.CredentialExistsException;
 import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.UserRole;
 import com.example.Angle.Config.SecRepositories.AccountRepository;
@@ -73,39 +74,45 @@ public class AccountRetrievalServiceTest {
     }
 
     @Test
-    void usernameExistsTest_Exists(){
+    void usernameExistsTest_Exists() throws CredentialExistsException {
         String username = "existingUser";
-        when(accountRepository.findByUsername(username)).thenReturn(Optional.of(this.account));
-        boolean result = accountRetrievalService.usernameExists(username);
-        assertTrue(result);
-        verify(accountRepository,times(1)).findByUsername(username);
+        when(accountRepository.existsByUsername(username)).thenReturn(true);
+        assertThrows(CredentialExistsException.class, () ->{
+            accountRetrievalService.usernameExists(username);
+        });
+        verify(accountRepository,times(1)).existsByUsername(username);
     }
 
     @Test
     void usernameExistsTest_notExist(){
         String username = "xyz";
-        when(accountRepository.findByUsername(username)).thenReturn(Optional.empty());
-        boolean result = accountRetrievalService.usernameExists(username);
-        assertFalse(result);
-        verify(accountRepository,times(1)).findByUsername(username);
+        when(accountRepository.existsByUsername(username)).thenReturn(false);
+        assertDoesNotThrow(() ->{
+            boolean result = accountRetrievalService.usernameExists(username);
+            assertFalse(result);
+        });
+        verify(accountRepository,times(1)).existsByUsername(username);
     }
 
     @Test
     void emailExistsTest_Exists(){
-        String email = "existingUser";
-        when(accountRepository.findByEmail(email)).thenReturn(Optional.of(this.account));
-        boolean result = accountRetrievalService.emailExists(email);
-        assertTrue(result);
-        verify(accountRepository,times(1)).findByEmail(email);
+        String email = "abc@abc.com";
+        when(accountRepository.existsByEmail(email)).thenReturn(true);
+        assertThrows(CredentialExistsException.class, () ->{
+            accountRetrievalService.emailExists(email);
+        });
+        verify(accountRepository,times(1)).existsByEmail(email);
     }
 
     @Test
     void emailExistsTest_notExist(){
         String email = "xyz";
-        when(accountRepository.findByEmail(email)).thenReturn(Optional.empty());
-        boolean result = accountRetrievalService.emailExists(email);
-        assertFalse(result);
-        verify(accountRepository,times(1)).findByEmail(email);
+        when(accountRepository.existsByEmail(email)).thenReturn(false);
+        assertDoesNotThrow(() ->{
+            boolean result = accountRetrievalService.emailExists(email);
+            assertFalse(result);
+        });
+        verify(accountRepository,times(1)).existsByEmail(email);
     }
 
     @Test

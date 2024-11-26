@@ -1,12 +1,18 @@
 package com.example.Angle.Services.FFMpeg;
 
+import com.example.Angle.Config.Exceptions.MediaNotFoundException;
+import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Models.EnvironmentVariables;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Thumbnail;
+import com.example.Angle.Models.Video;
 import com.example.Angle.Services.FFMpeg.Interfaces.FFMpegDataRetrievalInterface;
 import com.example.Angle.Services.Images.ImageConverterService;
+import com.example.Angle.Services.Videos.VideoRetrievalService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -25,11 +31,17 @@ public class FFMpegDataRetrievalService implements FFMpegDataRetrievalInterface 
 
     private final ImageConverterService imageConverterService;
 
+    private final VideoRetrievalService videoRetrievalService;
+
+    private final AccountRetrievalService accountRetrievalService;
+
 
     @Autowired
-    public FFMpegDataRetrievalService(EnvironmentVariables environmentVariables, ImageConverterService imageConverterService) {
+    public FFMpegDataRetrievalService(EnvironmentVariables environmentVariables, ImageConverterService imageConverterService, VideoRetrievalService videoRetrievalService, AccountRetrievalService accountRetrievalService) {
         this.environmentVariables = environmentVariables;
         this.imageConverterService = imageConverterService;
+        this.videoRetrievalService = videoRetrievalService;
+        this.accountRetrievalService = accountRetrievalService;
     }
 
     private static String inputStreamToString(InputStream inputStream) throws IOException {
@@ -56,7 +68,17 @@ public class FFMpegDataRetrievalService implements FFMpegDataRetrievalInterface 
     }
 
     @Override
-    public List<Thumbnail> getVideoThumbnails(String rawPath) throws IOException, InterruptedException {
+    public List<Thumbnail> getVideoThumbnails(String vId) throws MediaNotFoundException, IOException, ClassNotFoundException, InterruptedException {
+        Video video = videoRetrievalService.getVideo(vId);
+        Account account = accountRetrievalService.getCurrentUser();
+        if(!account.getId().equals(video.getAuthorId())){
+            throw new BadCredentialsException("Unauthorized");
+        }
+        return generateVideoThumbnails(video.getRawPath());
+    }
+
+    @Override
+    public List<Thumbnail> generateVideoThumbnails(String rawPath) throws IOException, InterruptedException {
         double videoLength = getVideoDuration(rawPath);
         File rawFile = new File(rawPath);
         Path path = rawFile.toPath();
