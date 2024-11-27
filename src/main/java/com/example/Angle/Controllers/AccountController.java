@@ -1,7 +1,6 @@
 package com.example.Angle.Controllers;
 
 
-import com.example.Angle.Config.Exceptions.EmailExistsException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Config.Exceptions.TokenExpiredException;
 import com.example.Angle.Config.Exceptions.CredentialExistsException;
@@ -10,21 +9,12 @@ import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Config.SecServices.Account.Interfaces.AccountRetrievalServiceInterface;
-import com.example.Angle.Config.SecServices.Account.UserAccountService;
 import com.example.Angle.Config.SecServices.JwtService;
 import com.example.Angle.Services.Email.MaintenanceMailsService;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.coyote.BadRequestException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

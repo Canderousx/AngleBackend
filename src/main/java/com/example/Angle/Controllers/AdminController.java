@@ -2,13 +2,11 @@ package com.example.Angle.Controllers;
 
 
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
-import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Config.SecServices.Account.Interfaces.AccountRetrievalServiceInterface;
 import com.example.Angle.Models.DTO.ReportDTO;
-import com.example.Angle.Models.Report;
 import com.example.Angle.Models.ReportSolutions;
 import com.example.Angle.Repositories.ReportRepository;
 import com.example.Angle.Services.Comments.CommentModerationService;
@@ -17,19 +15,12 @@ import com.example.Angle.Services.Reports.ReportRetrievalService;
 import com.example.Angle.Services.Videos.VideoModerationService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.coyote.BadRequestException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -45,13 +36,7 @@ public class AdminController {
 
     private final VideoModerationService videoModerationService;
 
-    private final ReportRepository reportRepository;
-
-    private final AccountRetrievalService accountRetrievalService;
-
     private final ReportRetrievalService reportRetrievalService;
-
-    private final Logger logger = LogManager.getLogger(AdminController.class);
 
 
     @Autowired
@@ -66,8 +51,6 @@ public class AdminController {
         this.reportModerationService = reportModerationService;
         this.commentModerationService = commentModerationService;
         this.videoModerationService = videoModerationService;
-        this.reportRepository = reportRepository;
-        this.accountRetrievalService = accountRetrievalService;
         this.reportRetrievalService = reportRetrievalService;
     }
 

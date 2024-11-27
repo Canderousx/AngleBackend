@@ -3,7 +3,6 @@ package com.example.Angle.Controllers;
 
 import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
-import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
 import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
@@ -20,9 +19,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,8 +40,6 @@ public class VideoController {
 
     private final AccountRetrievalService accountRetrievalService;
 
-    private final AccountAdminService accountAdminService;
-
     @Autowired
     public VideoController(VideoRetrievalService videoRetrievalService,
                            VideoModerationService videoModerationService,
@@ -56,7 +50,6 @@ public class VideoController {
         this.videoModerationService = videoModerationService;
         this.commentRetrievalService = commentRetrievalService;
         this.accountRetrievalService = accountRetrievalService;
-        this.accountAdminService = accountAdminService;
     }
 
     @RequestMapping(value = "/deleteVideo",method = RequestMethod.DELETE)
