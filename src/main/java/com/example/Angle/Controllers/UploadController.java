@@ -26,7 +26,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/upload")
-@CrossOrigin(value = {"http://localhost:4200","http://192.168.100.36:4200","http://142.93.104.248"})
 public class UploadController {
     private final FFMpegDataRetrievalService ffMpegDataRetrievalService;
 
