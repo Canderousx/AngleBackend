@@ -42,30 +42,15 @@ public class AccountController {
 
     private final MaintenanceMailsService maintenanceMailsService;
 
-    private final PasswordEncoder passwordEncoder;
-
-
-    private final UserAccountService userAccountService;
-
-    private final AuthenticationManager authenticationManager;
-
     @Autowired
     public AccountController(JwtService jwtService, AccountAdminService accountAdminService,
                              AccountRetrievalService accountRetrievalService,
-                             MaintenanceMailsService maintenanceMailsService,
-                             PasswordEncoder passwordEncoder,
-                             UserAccountService userAccountService,
-                             AuthenticationManager authenticationManager) {
+                             MaintenanceMailsService maintenanceMailsService) {
         this.jwtService = jwtService;
         this.accountAdminService = accountAdminService;
         this.accountRetrievalService = accountRetrievalService;
         this.maintenanceMailsService = maintenanceMailsService;
-        this.passwordEncoder = passwordEncoder;
-        this.userAccountService = userAccountService;
-        this.authenticationManager = authenticationManager;
     }
-
-    private final Logger logger = LogManager.getLogger(AccountController.class);
 
 
     @RequestMapping(value = "/unAuth/getAccount",method = RequestMethod.GET)
