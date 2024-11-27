@@ -3,7 +3,7 @@ package com.example.Angle.Controllers;
 
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Models.ReportCategories;
-import com.example.Angle.Models.ReportRequest;
+import com.example.Angle.Models.DTO.ReportRequest;
 import com.example.Angle.Models.ReportTypes;
 import com.example.Angle.Services.Reports.ReportSaveService;
 import org.apache.coyote.BadRequestException;

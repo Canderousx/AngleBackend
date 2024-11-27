@@ -1,4 +1,4 @@
-package com.example.Angle.Models;
+package com.example.Angle.Models.DTO;
 import jakarta.validation.constraints.Size;
 
 public record ReportRequest(
