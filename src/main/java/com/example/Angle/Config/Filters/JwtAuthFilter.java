@@ -44,23 +44,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if(authHeader != null){
                 if(authHeader.startsWith("Bearer ")){
                     token = authHeader.substring(7);
-                    logger.info("RECEIVED TOKEN: "+token);
                     email = jwtService.extractUsername(token);
-                    logger.info("RECEIVED EMAIL: "+email);
                 }
             }
             if(email !=null && SecurityContextHolder.getContext().getAuthentication() == null){
                 Account account = userDetailsService.loadUserByUsername(email);
                 String userIP = request.getRemoteAddr();
                 if(jwtService.validateToken(token,account,userIP)){
-                    logger.info("Received token is valid!");
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             account,null,account.getAuthorities()
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }else{
-                    logger.info("Received token invalid!");
                     throw new TokenExpiredException();
 
                 }
