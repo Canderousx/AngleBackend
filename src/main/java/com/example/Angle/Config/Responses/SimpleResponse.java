@@ -8,5 +8,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class SimpleResponse {
 
-    String message;
+    private String message;
 }
