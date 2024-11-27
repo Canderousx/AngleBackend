@@ -22,9 +22,6 @@ import java.util.*;
 @RestController
 @RequestMapping(value = "/comments")
 public class CommentController {
-
-    private final Logger logger = LogManager.getLogger(CommentController.class);
-
     private final CommentRetrievalService commentRetrievalService;
 
     private final CommentManagementService commentManagementService;
@@ -45,10 +42,8 @@ public class CommentController {
     @RequestMapping(value = "/addComment",method = RequestMethod.POST)
     public Page<Comment> addComment(@RequestBody Comment comment,
                                     HttpServletResponse response) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        comment.setDatePublished(new Date());
         commentManagementService.addComment(comment);
-        Pageable paginateSettings = PageRequest.of(0,10, Sort.by("datePublished").descending());
-        Page<Comment> refreshed = commentRetrievalService.getVideoComments(comment.getVideoId(),paginateSettings);
+        Page<Comment> refreshed = commentRetrievalService.getVideoComments(comment.getVideoId(),0,10);
         response.setHeader("totalComments",String.valueOf(refreshed.getTotalElements()));
         return refreshed;
     }

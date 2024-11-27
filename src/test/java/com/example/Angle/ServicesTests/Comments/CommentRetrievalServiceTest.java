@@ -101,7 +101,7 @@ public class CommentRetrievalServiceTest {
 
         Page<Comment> result = commentRetrievalService.getVideoComments(
                 comment.getVideoId(),
-                pageable
+                0, 10
         );
         assertNotNull(result);
         assertEquals(3,result.getContent().size());
@@ -123,7 +123,7 @@ public class CommentRetrievalServiceTest {
 
         Page<Comment> result = commentRetrievalService.getVideoComments(
                 comment.getVideoId(),
-                pageable
+                0, 10
         );
         assertNotNull(result);
         assertEquals(0,result.getContent().size());

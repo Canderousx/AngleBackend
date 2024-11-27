@@ -8,8 +8,6 @@ import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
 import com.example.Angle.Services.Videos.Interfaces.VideoRetrievalInterface;
 import org.apache.coyote.BadRequestException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,8 +27,6 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
 
     private final VideoThumbnailsService videoThumbnailsService;
 
-    private final Logger log = LogManager.getLogger(VideoRetrievalService.class);
-
     @Autowired
     public VideoRetrievalService(AccountRetrievalService accountRetrievalService,
                                  VideoRepository videoRepository,
@@ -41,9 +37,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     private void addRandomVideos(List<Video>currentList, String currentId){
-        log.info("CURRENT VIDEO LIST SIZE: "+currentList.size());
         if(currentList.size() < 10){
-            log.info("Less than 10... Adding some random movies!");
             List<String>alreadyIds = new ArrayList<>();
             if(currentList.isEmpty()){
                 alreadyIds.add("");
@@ -67,13 +61,12 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    public Page<Video> getUserVideos(String userId, Pageable pageable) {
+    public Page<Video> getUserVideos(String userId, int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
         Page<Video>userVideos = this.videoRepository.findByAuthorId(userId,pageable);
         if(userVideos.isEmpty()){
-            log.info("User ["+userId+"] doesn't have any videos.");
             return null;
         }
-        log.info("User ["+userId+"] videos found");
         videoThumbnailsService.processThumbnails(userVideos.getContent());
         return userVideos;
     }
@@ -82,22 +75,18 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     public Video getVideo(String videoId) throws MediaNotFoundException, IOException, ClassNotFoundException {
         Video video = this.videoRepository.findById(videoId).orElse(null);
         if(video!=null){
-            log.info("Requested Video FOUND: "+videoId);
             videoThumbnailsService.processThumbnail(video);
             return video;
         }
-        log.info("Requested Video NOT FOUND: "+videoId);
         throw new MediaNotFoundException("Video not found");
     }
 
-    @Override //Returns a video without thumbnail in base64, made for cases that doesn't require a thumbnail to be seen.
+    @Override //Returns a video without thumbnail, made for cases that doesn't require a thumbnail to be seen.
     public Video getRawVideo(String videoId) throws MediaNotFoundException {
         Video video = this.videoRepository.findById(videoId).orElse(null);
         if(video!=null){
-            log.info("Requested Video FOUND: "+videoId);
             return video;
         }
-        log.info("Requested Video NOT FOUND: "+videoId);
         throw new MediaNotFoundException("Video not found");
     }
 
@@ -122,7 +111,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    public List<Video> getSimilar(String videoId) throws MediaNotFoundException {        Video video = getRawVideo(videoId);
+    public List<Video> getSimilar(String videoId) throws MediaNotFoundException {Video video = getRawVideo(videoId);
         Set<String> tagNames = new HashSet<>();
         video.getTags().forEach(tag -> tagNames.add(tag.getName()));
         List<Video> videos = videoRepository.findSimilar(tagNames,videoId);
@@ -131,12 +120,25 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
             videoThumbnailsService.processThumbnails(videos);
             return videos;
         }
-        log.info("No similar videos present in a list!");
         return new ArrayList<>();
+    }
+
+    @Override
+    public int checkRated(String videoId) throws BadRequestException {
+        Account account = accountRetrievalService.getCurrentUser();
+        if(account.getLikedVideos().contains(videoId)){
+            return 1;
+        }
+        if(account.getDislikedVideos().contains(videoId)){
+            return 2;
+        }
+        return 0;
     }
 
     @Override
     public int howManyUserVideos(String userId){
         return videoRepository.countUserVideos(userId);
     }
+
+
 }

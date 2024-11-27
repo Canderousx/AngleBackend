@@ -67,55 +67,23 @@ public class VideoController {
     }
 
     @RequestMapping(value = "/checkRated",method = RequestMethod.GET)
-    public List<Boolean> checkRated (@RequestParam String v) throws BadRequestException {
-        List<Boolean> ratingData = new ArrayList<>();
-        Account account = accountRetrievalService.getCurrentUser();
-        if(account.getLikedVideos().contains(v) || account.getDislikedVideos().contains(v)){
-            if(account.getLikedVideos().contains(v)){
-                ratingData.add(true);
-            }else{
-                ratingData.add(false);
-            }
-        }
-        return ratingData;
+    public int checkRated (@RequestParam String v) throws BadRequestException {
+        // 0 means non-rated, 1 is liked, 2 is disliked
+        return videoRetrievalService.checkRated(v);
     }
 
     @RequestMapping(value = "/rateVideo",method = RequestMethod.POST)
     public ResponseEntity<SimpleResponse> rateVideo(@RequestParam String v,
                                                     @RequestBody boolean rating) throws MediaNotFoundException, BadRequestException {
-        Account account = accountRetrievalService.getCurrentUser();
-        if(rating){
-            if(!account.getLikedVideos().contains(v)){
-                this.videoModerationService.likeVideo(v);
-                if(account.getDislikedVideos().contains(v)){
-                    logger.info("Video was disliked before... Removing dislike");
-                    this.videoModerationService.removeDislike(v);
-                    account.getDislikedVideos().remove(v);
-                }
-                account.getLikedVideos().add(v);
-                accountAdminService.addUser(account);
-            }
-        }
-        if(!rating){
-            if(!account.getDislikedVideos().contains(v)){
-                this.videoModerationService.dislikeVideo(v);
-                if(account.getLikedVideos().contains(v)){
-                    logger.info("Video was liked before... Removing like");
-                    this.videoModerationService.removeLike(v);
-                    account.getLikedVideos().remove(v);
-                }
-                account.getDislikedVideos().add(v);
-                accountAdminService.addUser(account);
-            }
-        }
-        return ResponseEntity.ok(new SimpleResponse("Operation ended successfully"));
+        videoModerationService.rateVideo(v,rating);
+        return ResponseEntity.ok(new SimpleResponse("Video rated"));
     }
 
 
     @RequestMapping(value = "/unAuth/videos/registerView",method = RequestMethod.PATCH)
-    public ResponseEntity<SimpleResponse>registerView(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
+    public ResponseEntity<String>registerView(@RequestParam String id) throws MediaNotFoundException, IOException, ClassNotFoundException {
             this.videoModerationService.registerView(id);
-            return ResponseEntity.ok(new SimpleResponse("View registered!"));
+            return ResponseEntity.ok("");
     }
 
     @RequestMapping(value = "/unAuth/videos/getSimilar",method = RequestMethod.GET)
@@ -133,9 +101,9 @@ public class VideoController {
                                      @RequestParam int page,
                                      @RequestParam int pageSize,
                                      HttpServletResponse httpResponse) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        Pageable paginateSettings = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        httpResponse.setHeader("totalComments", String.valueOf(commentRetrievalService.getTotalCommentsNum(id)));
-        return commentRetrievalService.getVideoComments(id,paginateSettings);
+        Page<Comment> comments = commentRetrievalService.getVideoComments(id,page,pageSize);
+        httpResponse.setHeader("totalComments", String.valueOf(comments.getTotalElements()));
+        return comments;
     }
 
     @RequestMapping(value = "/unAuth/videos/getAll",method = RequestMethod.GET)
@@ -163,8 +131,7 @@ public class VideoController {
                                      @RequestParam int page,
                                      @RequestParam int pageSize,
                                      HttpServletResponse response) throws BadRequestException, MediaNotFoundException {
-        Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        Page<Video> userVideos = videoRetrievalService.getUserVideos(id,pageable);
+        Page<Video> userVideos = videoRetrievalService.getUserVideos(id,page,pageSize);
         response.setHeader("totalVideos",String.valueOf(userVideos.getTotalElements()));
         return userVideos;
     }

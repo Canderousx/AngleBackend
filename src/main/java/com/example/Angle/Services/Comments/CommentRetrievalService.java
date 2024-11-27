@@ -11,7 +11,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -59,8 +61,9 @@ public class CommentRetrievalService implements CommentRetrieval {
     }
 
     @Override
-    public Page<Comment> getVideoComments(String videoId, Pageable pageable) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        Page<Comment> pageComments = this.commentRepository.findByVideoId(videoId,pageable);
+    public Page<Comment> getVideoComments(String videoId,int page, int pageSize) throws IOException, ClassNotFoundException, MediaNotFoundException {
+        Pageable paginateSettings = PageRequest.of(page,pageSize, Sort.by("datePublished").descending());
+        Page<Comment> pageComments = this.commentRepository.findByVideoId(videoId,paginateSettings);
         if(!pageComments.isEmpty()){
             log.info("Video ["+videoId+"] comments found");
             return fillCommentData(pageComments);

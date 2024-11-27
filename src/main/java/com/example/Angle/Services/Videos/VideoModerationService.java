@@ -2,8 +2,10 @@ package com.example.Angle.Services.Videos;
 
 import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
+import com.example.Angle.Config.Models.Account;
 import com.example.Angle.Config.Responses.SimpleResponse;
 import com.example.Angle.Config.SecServices.Account.AccountAdminService;
+import com.example.Angle.Config.SecServices.Account.AccountRetrievalService;
 import com.example.Angle.Models.Tag;
 import com.example.Angle.Models.Video;
 import com.example.Angle.Repositories.VideoRepository;
@@ -12,6 +14,7 @@ import com.example.Angle.Services.Files.FileDeleterService;
 import com.example.Angle.Services.Images.ImageSaveService;
 import com.example.Angle.Services.Tags.TagSaverService;
 import com.example.Angle.Services.Videos.Interfaces.VideoModerationInterface;
+import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,8 @@ public class VideoModerationService implements VideoModerationInterface {
 
     private final AccountAdminService accountAdminService;
 
+    private final AccountRetrievalService accountRetrievalService;
+
     private final TagSaverService tagSaverService;
 
     private final ImageSaveService imageSaveService;
@@ -51,7 +56,8 @@ public class VideoModerationService implements VideoModerationInterface {
                                   CommentManagementService commentManagementService,
                                   AccountAdminService accountAdminService,
                                   TagSaverService tagSaverService,
-                                  ImageSaveService imageSaveService) {
+                                  ImageSaveService imageSaveService,
+                                  AccountRetrievalService accountRetrievalService) {
         this.videoRetrievalService = videoRetrievalService;
         this.videoRepository = videoRepository;
         this.fileDeleterService = fileDeleterService;
@@ -59,6 +65,7 @@ public class VideoModerationService implements VideoModerationInterface {
         this.accountAdminService = accountAdminService;
         this.tagSaverService = tagSaverService;
         this.imageSaveService = imageSaveService;
+        this.accountRetrievalService = accountRetrievalService;
     }
 
     @Override
@@ -80,6 +87,33 @@ public class VideoModerationService implements VideoModerationInterface {
 
         }
         throw new MediaNotFoundException("Requested video not found");
+    }
+
+    @Override
+    public void rateVideo(String v, boolean rating) throws BadRequestException, MediaNotFoundException {
+        Account account = accountRetrievalService.getCurrentUser();
+        if(rating){
+            if(!account.getLikedVideos().contains(v)){
+                likeVideo(v);
+                if(account.getDislikedVideos().contains(v)){
+                    removeDislike(v);
+                    account.getDislikedVideos().remove(v);
+                }
+                account.getLikedVideos().add(v);
+                accountAdminService.addUser(account);
+            }
+        }
+        if(!rating){
+            if(!account.getDislikedVideos().contains(v)){
+                dislikeVideo(v);
+                if(account.getLikedVideos().contains(v)){
+                    removeLike(v);
+                    account.getLikedVideos().remove(v);
+                }
+                account.getDislikedVideos().add(v);
+                accountAdminService.addUser(account);
+            }
+        }
     }
 
     @Override

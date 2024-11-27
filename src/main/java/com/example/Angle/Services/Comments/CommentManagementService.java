@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Date;
 
 
 @Service
@@ -37,11 +38,10 @@ public class CommentManagementService implements CommentManagement {
     @Override
     public void addComment(Comment comment) throws BadRequestException {
         if(comment !=null){
+            comment.setDatePublished(new Date());
             this.commentRepository.save(comment);
-            log.info("Comment added successfully!");
         }else{
-            log.error("Unable to add new comment. It's NULL");
-            throw new BadRequestException("Internal Server Error: COMMENT NULL");
+            throw new RuntimeException("Unable to add new comment. It's NULL");
         }
     }
 
@@ -51,7 +51,6 @@ public class CommentManagementService implements CommentManagement {
         Comment toDelete = commentRetrievalServiceImpl.getComment(id);
         if(currentAccount.getId().equals(toDelete.getAuthorId()) || accountRetrievalService.isAdmin()){
             this.commentRepository.delete(toDelete);
-            log.info("Requested comment ["+id+"] has been deleted");
         }else{
             throw new BadRequestException("Unauthorized");
         }

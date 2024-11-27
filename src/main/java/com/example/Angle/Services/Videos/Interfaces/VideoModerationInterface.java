@@ -3,10 +3,13 @@ package com.example.Angle.Services.Videos.Interfaces;
 import com.example.Angle.Config.Exceptions.FileServiceException;
 import com.example.Angle.Config.Exceptions.MediaNotFoundException;
 import com.example.Angle.Models.Video;
+import org.apache.coyote.BadRequestException;
 
 public interface VideoModerationInterface {
 
     void registerView(String videoId) throws MediaNotFoundException;
+
+    void rateVideo(String v, boolean rating) throws BadRequestException, MediaNotFoundException;
 
     void removeVideo(String id) throws MediaNotFoundException, FileServiceException;
 

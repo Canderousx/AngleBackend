@@ -33,9 +33,6 @@ public class UploadController {
 
     private final VideoModerationService videoModerationService;
 
-
-    private final Logger logger = LogManager.getLogger(UploadController.class);
-
     @Autowired
     public UploadController(VideoModerationService videoModerationService,
                             VideoUploadService videoUploadService,

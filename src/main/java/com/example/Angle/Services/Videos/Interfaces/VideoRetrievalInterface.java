@@ -13,7 +13,7 @@ public interface VideoRetrievalInterface {
 
     Page<Video> getAllVideos(int page);
 
-    Page<Video> getUserVideos(String userId, Pageable pageable);
+    Page<Video> getUserVideos(String userId, int page, int pageSize);
 
     Video getVideo(String videoId) throws MediaNotFoundException, IOException, ClassNotFoundException;
 
@@ -26,6 +26,8 @@ public interface VideoRetrievalInterface {
     List<Video> getSimilar(String videoId) throws MediaNotFoundException;
 
     int howManyUserVideos(String userId);
+
+    int checkRated(String videoId) throws BadRequestException;
 
 
 
