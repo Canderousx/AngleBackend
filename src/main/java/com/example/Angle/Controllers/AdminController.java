@@ -115,12 +115,9 @@ public class AdminController {
                                          @RequestParam String sortBy,
                                          @RequestParam String order,
                                          HttpServletResponse response){
-        Pageable pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).ascending());
-        if(order.contains("desc")){
-            pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).descending());
-        }
-        response.setHeader("totalReports",String.valueOf(reportRepository.countUnresolvedReports()));
-        return reportRepository.getUnresolved(pageable);
+        Page<ReportDTO>unresolved = reportRetrievalService.getUnresolved(page,pageSize,sortBy,order);
+        response.setHeader("totalReports",String.valueOf(unresolved.getTotalElements()));
+        return unresolved;
     }
 
     @RequestMapping(value = "report/getMyCases",method = RequestMethod.GET)
@@ -129,14 +126,8 @@ public class AdminController {
                                      @RequestParam String sortBy,
                                      @RequestParam String order,
                                      HttpServletResponse response) throws BadRequestException {
-        Account account = accountRetrievalService.getCurrentUser();
-        Pageable pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).ascending());
-        if(order.contains("desc")){
-            pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).descending());
-        }
-        response.setHeader("totalReports",String.valueOf(reportRepository.countMyCases(account.getId())));
-        Page<ReportDTO> myCases = reportRepository.getMyCases(account.getId(),pageable);
-        logger.info("USER CASES COUNT: "+myCases.getTotalElements());
+        Page<ReportDTO>myCases = reportRetrievalService.getMyCases(page,pageSize,sortBy,order);
+        response.setHeader("totalReports",String.valueOf(myCases.getTotalElements()));
         return myCases;
     }
 
@@ -146,24 +137,13 @@ public class AdminController {
                                       @RequestParam String sortBy,
                                       @RequestParam String order,
                                       HttpServletResponse response){
-        Pageable pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).ascending());
-        if(order.contains("desc")){
-            pageable = PageRequest.of(page,pageSize, Sort.by(sortBy).descending());
-        }
-        response.setHeader("totalReports",String.valueOf(reportRepository.countResolved()));
-        Page<ReportDTO> myCases = reportRepository.getResolved(pageable);
-        logger.info("USER CASES COUNT: "+myCases.getTotalElements());
-        return myCases;
+        Page<ReportDTO>resolved = reportRetrievalService.getResolved(page,pageSize,sortBy,order);
+        response.setHeader("totalReports",String.valueOf(resolved.getTotalElements()));
+        return resolved;
     }
     @RequestMapping(value = "report/getUsersInvolved",method = RequestMethod.GET)
     public List<AccountRetrievalServiceInterface.AccountRecord>getUsersInvolved(@RequestParam String id) throws IOException, ClassNotFoundException, MediaNotFoundException {
-        Report report = reportRetrievalService.getReport(id);
-        Account reporter = accountRetrievalService.getUser(report.getReporterId());
-        Account reported = accountRetrievalService.getMediaAuthor(report.getType(),report.getMediaId());
-        List<AccountRetrievalServiceInterface.AccountRecord>involved = new ArrayList<>();
-        involved.add(accountRetrievalService.generateAccountResponse(reporter));
-        involved.add(accountRetrievalService.generateAccountResponse(reported));
-        return involved;
+        return reportRetrievalService.getUsersInvolved(id);
     }
 
 
