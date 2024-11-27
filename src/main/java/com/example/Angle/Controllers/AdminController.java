@@ -161,7 +161,6 @@ public class AdminController {
         Account reporter = accountRetrievalService.getUser(report.getReporterId());
         Account reported = accountRetrievalService.getMediaAuthor(report.getType(),report.getMediaId());
         List<AccountRetrievalServiceInterface.AccountRecord>involved = new ArrayList<>();
-        logger.info("USERS INVOLVED: "+reported.getUsername()+" AND "+reporter.getUsername());
         involved.add(accountRetrievalService.generateAccountResponse(reporter));
         involved.add(accountRetrievalService.generateAccountResponse(reported));
         return involved;

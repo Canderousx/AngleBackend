@@ -117,6 +117,7 @@ public class AccountRetrievalServiceTest {
 
     @Test
     void isActiveTest_Active(){
+        when(accountRepository.existsByEmail(account.getEmail())).thenReturn(true);
         when(accountRepository.isActive(account.getEmail())).thenReturn(true);
         boolean result = accountRetrievalService.isActive(account.getEmail());
         assertTrue(result);
@@ -125,6 +126,7 @@ public class AccountRetrievalServiceTest {
 
     @Test
     void isActiveTest_NonActive(){
+        when(accountRepository.existsByEmail(account.getEmail())).thenReturn(true);
         when(accountRepository.isActive(account.getEmail())).thenReturn(false);
         boolean result = accountRetrievalService.isActive(account.getEmail());
         assertFalse(result);
