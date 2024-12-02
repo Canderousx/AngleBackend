@@ -5,6 +5,8 @@ It's a backend application for YouTube-like website called *Angle*.
 
 This version is the latest one and has been adapted for deployment on servers running Ubuntu. The use of Docker is recommended.
 
+**UPDATE: Currently working on dividing the project into microservices with kafka as a messenger.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
